@@ -1,0 +1,5 @@
+---
+- import_playbook: 01-base.yml
+- import_playbook: 02-gpu-runtime.yml
+- import_playbook: 03-k3s.yml
+

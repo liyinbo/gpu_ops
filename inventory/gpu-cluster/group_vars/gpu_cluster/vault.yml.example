@@ -1,0 +1,5 @@
+---
+# Create inventory/gpu-cluster/group_vars/gpu_cluster/vault.yml with ansible-vault.
+# Do not commit plaintext secrets.
+vault_ansible_become_password: replace-with-gpu-node-sudo-password
+vault_k3s_token: replace-with-long-random-k3s-token

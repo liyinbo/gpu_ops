@@ -1,0 +1,7 @@
+---
+- name: Prepare GPU cluster base OS
+  hosts: gpu_cluster
+  become: true
+  roles:
+    - common
+

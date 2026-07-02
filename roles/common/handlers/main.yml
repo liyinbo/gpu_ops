@@ -1,0 +1,7 @@
+---
+- name: Restart qemu guest agent
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    state: restarted
+  when: ansible_service_mgr == "systemd"
+

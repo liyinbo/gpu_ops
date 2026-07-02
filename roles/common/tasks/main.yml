@@ -1,0 +1,68 @@
+---
+- name: Refresh apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Enable iscsid for CSI drivers
+  ansible.builtin.service:
+    name: iscsid
+    enabled: true
+    state: started
+  when: ansible_service_mgr == "systemd"
+
+- name: Enable qemu guest agent when installed
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+  when: ansible_service_mgr == "systemd"
+
+- name: Disable swap immediately
+  ansible.builtin.command: swapoff -a
+  changed_when: false
+  when: ansible_swaptotal_mb | int > 0
+
+- name: Remove active swap entries from fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\sswap\s.*)$'
+    replace: '# \1'
+
+- name: Load required kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - br_netfilter
+    - overlay
+
+- name: Persist required kernel modules
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/k8s.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      br_netfilter
+      overlay
+
+- name: Configure Kubernetes sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - name: net.bridge.bridge-nf-call-iptables
+      value: "1"
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: "1"
+    - name: net.ipv4.ip_forward
+      value: "1"
+

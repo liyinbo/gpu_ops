@@ -1,0 +1,7 @@
+---
+- name: Bootstrap Flux prerequisites
+  hosts: k3s_servers[0]
+  become: true
+  roles:
+    - flux
+

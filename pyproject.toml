@@ -1,0 +1,10 @@
+[project]
+name = "gpu-ops"
+version = "0.1.0"
+description = "GPU cluster operations with Ansible and GitOps"
+requires-python = ">=3.12"
+dependencies = [
+  "ansible>=10.0.0",
+  "kubernetes>=30.0.0",
+]
+

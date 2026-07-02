@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+.ansible/
+*.retry
+*.log
+.vault_pass
+inventory/gpu-cluster/group_vars/gpu_cluster/vault.yml
+kubeconfig*.yaml
+age.agekey
+*.tmp
+backups/

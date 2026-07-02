@@ -1,0 +1,7 @@
+---
+- name: Install NVIDIA container runtime support
+  hosts: gpu_nodes
+  become: true
+  roles:
+    - nvidia_container_toolkit
+

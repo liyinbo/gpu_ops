@@ -1,0 +1,46 @@
+---
+- name: Create k3s config directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Write k3s server config
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      token: "{{ k3s_token }}"
+      bind-address: "{{ k3s_server_bind_address }}"
+      write-kubeconfig-mode: "0644"
+      disable:
+      {% for component in k3s_disable_components %}
+        - "{{ component }}"
+      {% endfor %}
+      node-label:
+        - "node-role.kubernetes.io/gpu-control-plane=true"
+
+- name: Install k3s server
+  ansible.builtin.shell: |
+    set -eu
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ k3s_version }}" sh -s - server
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Ensure k3s server is enabled and running
+  ansible.builtin.service:
+    name: k3s
+    enabled: true
+    state: started
+
+- name: Fetch kubeconfig to controller
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ k3s_kubeconfig_dest }}"
+    flat: true
+  run_once: true
+

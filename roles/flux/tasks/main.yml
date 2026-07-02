@@ -1,0 +1,14 @@
+---
+- name: Check for kubectl
+  ansible.builtin.command: kubectl version --client=true
+  register: kubectl_version
+  changed_when: false
+  failed_when: false
+
+- name: Report Flux bootstrap placeholder
+  ansible.builtin.debug:
+    msg:
+      - "Flux bootstrap is intentionally not automatic yet."
+      - "Install flux CLI and run bootstrap after Git remote and deploy key are known."
+      - "{{ kubectl_version.stdout | default('kubectl not found') }}"
+
