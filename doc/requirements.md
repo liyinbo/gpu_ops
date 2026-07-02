@@ -26,9 +26,13 @@ GPU worker nodes must be prepared for NVIDIA GPU Operator. Host preparation must
 
 The repo must include a Flux-compatible cluster entry point under `clusters/gpu-cluster`.
 
+The repo must include an operator path to install Flux controllers on an existing k3s cluster and apply the cluster entry point without requiring remote Git bootstrap.
+
 ### REQ-GPU-006 NVIDIA GPU Operator
 
 The repo must include Flux-compatible manifests to install NVIDIA GPU Operator. GPU Operator is responsible for Kubernetes GPU resource management, including device plugin integration and related NVIDIA components.
+
+The default deployment mode is operator-managed NVIDIA driver and container toolkit. Host-side Ansible NVIDIA toolkit installation must remain disabled unless the operator deployment mode is changed and documented.
 
 ### REQ-GPU-007 Validation
 
@@ -37,7 +41,9 @@ The repo must include test manifests and commands that verify node readiness, GP
 ## Operational Requirements
 
 - Do not store real tokens, private keys, kubeconfigs, or host-specific secrets in Git.
+- Store the GPU node SSH username in Ansible Vault as `vault_ansible_user` when it differs from the default `ubuntu`.
 - Store the GPU node become password in Ansible Vault as `vault_ansible_become_password`.
+- Store an SSH password in Ansible Vault as `vault_ansible_password` only when key-based SSH is unavailable.
 - Store the k3s token in Ansible Vault as `vault_k3s_token`.
 - Keep host inventory examples clearly replaceable.
 - Run Ansible syntax checks before applying playbooks to real hosts.

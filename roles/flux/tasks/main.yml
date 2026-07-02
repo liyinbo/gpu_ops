@@ -3,12 +3,25 @@
   ansible.builtin.command: kubectl version --client=true
   register: kubectl_version
   changed_when: false
-  failed_when: false
+  failed_when: kubectl_version.rc != 0
 
-- name: Report Flux bootstrap placeholder
-  ansible.builtin.debug:
-    msg:
-      - "Flux bootstrap is intentionally not automatic yet."
-      - "Install flux CLI and run bootstrap after Git remote and deploy key are known."
-      - "{{ kubectl_version.stdout | default('kubectl not found') }}"
+- name: Check for flux CLI
+  ansible.builtin.command: flux --version
+  register: flux_version
+  changed_when: false
+  failed_when: flux_version.rc != 0
 
+- name: Install Flux controllers
+  ansible.builtin.command: >-
+    flux install
+    --kubeconfig={{ k3s_kubeconfig_dest | default(playbook_dir + '/../kubeconfig-gpu-cluster.yaml') }}
+  register: flux_install
+  changed_when: "'created' in flux_install.stdout or 'configured' in flux_install.stdout"
+
+- name: Apply cluster GitOps entrypoint
+  ansible.builtin.command: >-
+    kubectl
+    --kubeconfig={{ k3s_kubeconfig_dest | default(playbook_dir + '/../kubeconfig-gpu-cluster.yaml') }}
+    apply -k {{ playbook_dir }}/../clusters/gpu-cluster
+  register: cluster_apply
+  changed_when: "' created' in cluster_apply.stdout or ' configured' in cluster_apply.stdout"

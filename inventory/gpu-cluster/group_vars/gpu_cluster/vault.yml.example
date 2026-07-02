@@ -1,5 +1,9 @@
 ---
 # Create inventory/gpu-cluster/group_vars/gpu_cluster/vault.yml with ansible-vault.
 # Do not commit plaintext secrets.
+vault_ansible_user: replace-with-gpu-node-ssh-user
 vault_ansible_become_password: replace-with-gpu-node-sudo-password
+# Optional: set only when SSH password auth is required instead of key auth.
+# Prefer GPU_OPS_SSH_KEY for SSH key paths so private key locations stay local.
+# vault_ansible_password: replace-with-gpu-node-ssh-password
 vault_k3s_token: replace-with-long-random-k3s-token

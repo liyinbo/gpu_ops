@@ -1,0 +1,53 @@
+---
+- name: Validate single-node inventory shape
+  hosts: localhost
+  gather_facts: false
+  vars:
+    expected_gpu_node_ip: "{{ hostvars[groups['k3s_servers'][0]].gpu_single_node_ip | default('192.168.8.130') }}"
+  tasks:
+    - name: Assert single-node inventory
+      ansible.builtin.assert:
+        that:
+          - groups['k3s_servers'] | length == 1
+          - groups['k3s_agents'] | default([]) | length == 0
+          - groups['gpu_nodes'] | length == 1
+          - hostvars[groups['k3s_servers'][0]].ansible_host == expected_gpu_node_ip
+        fail_msg: "Inventory must describe one GPU k3s server at {{ expected_gpu_node_ip }} and no agents."
+        quiet: true
+
+- name: Inspect GPU node state before provisioning
+  hosts: gpu_cluster
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Check Secure Boot state
+      ansible.builtin.command: mokutil --sb-state
+      register: secure_boot_state
+      changed_when: false
+      failed_when: false
+
+    - name: Check NVIDIA GPU and driver state
+      ansible.builtin.command: nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
+      register: nvidia_smi_preflight
+      changed_when: false
+      failed_when: false
+
+    - name: Check current k3s state
+      ansible.builtin.shell: |
+        set -eu
+        printf 'k3s_service='
+        systemctl is-active k3s 2>/dev/null || true
+        printf 'k3s_kubeconfig='
+        test -f /etc/rancher/k3s/k3s.yaml && echo present || echo missing
+      register: k3s_preflight
+      changed_when: false
+
+    - name: Report preflight summary
+      ansible.builtin.debug:
+        msg:
+          - "host={{ inventory_hostname }} ansible_host={{ ansible_host | default(inventory_hostname) }}"
+          - "os={{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }} kernel={{ ansible_facts.kernel }} arch={{ ansible_facts.architecture }}"
+          - "swap_mb={{ ansible_facts.swaptotal_mb }}"
+          - "secure_boot={{ secure_boot_state.stdout | default('unknown') }}"
+          - "nvidia_smi={{ nvidia_smi_preflight.stdout | default('not available') }}"
+          - "{{ k3s_preflight.stdout_lines }}"

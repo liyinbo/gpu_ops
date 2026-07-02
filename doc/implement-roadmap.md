@@ -9,6 +9,7 @@
 
 ## Phase 2: Base Host Provisioning
 
+- Add a non-destructive preflight check for inventory shape, SSH access, host OS, Secure Boot, current NVIDIA driver visibility, and current k3s state.
 - Implement common OS preparation.
 - Disable swap.
 - Configure Kubernetes kernel modules and sysctls.
@@ -24,14 +25,14 @@
 ## Phase 4: GPU Operator Prerequisites
 
 - Confirm target GPU models, host OS version, and current driver state.
-- Decide GPU Operator driver mode: operator-managed driver or preinstalled host driver.
+- Use operator-managed driver and container toolkit as the default deployment mode.
 - Keep host Ansible work limited to prerequisites required by the selected GPU Operator mode.
 
 ## Phase 5: GitOps Add-ons
 
 - Add Flux-compatible cluster entry point.
 - Add NVIDIA GPU Operator manifests.
-- Configure GPU Operator values for the selected driver, container toolkit, device plugin, and GPU feature discovery mode.
+- Configure GPU Operator values for operator-managed driver, toolkit, device plugin, GPU feature discovery, DCGM exporter, MIG strategy, and k3s containerd integration.
 - Add future infrastructure add-ons as requirements are clarified.
 
 ## Phase 6: Validation

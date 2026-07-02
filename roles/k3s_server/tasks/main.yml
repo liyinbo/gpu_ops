@@ -1,4 +1,13 @@
 ---
+- name: Refuse placeholder k3s token
+  ansible.builtin.assert:
+    that:
+      - k3s_token is defined
+      - k3s_token | length >= 32
+      - k3s_token != 'change-me-use-vault'
+    fail_msg: "Set vault_k3s_token in the encrypted Ansible Vault file before installing k3s."
+    quiet: true
+
 - name: Create k3s config directory
   ansible.builtin.file:
     path: /etc/rancher/k3s
@@ -16,13 +25,19 @@
     content: |
       token: "{{ k3s_token }}"
       bind-address: "{{ k3s_server_bind_address }}"
-      write-kubeconfig-mode: "0644"
+      tls-san:
+      {% for san in k3s_tls_sans | default([]) %}
+        - "{{ san }}"
+      {% endfor %}
+      write-kubeconfig-mode: "0600"
       disable:
       {% for component in k3s_disable_components %}
         - "{{ component }}"
       {% endfor %}
       node-label:
-        - "node-role.kubernetes.io/gpu-control-plane=true"
+        - "gpu-ops.io/control-plane=true"
+        - "gpu-ops.io/gpu-node=true"
+        - "nvidia.com/gpu.present=true"
 
 - name: Install k3s server
   ansible.builtin.shell: |
@@ -44,3 +59,11 @@
     flat: true
   run_once: true
 
+- name: Point fetched kubeconfig at the first server address
+  ansible.builtin.replace:
+    path: "{{ k3s_kubeconfig_dest }}"
+    regexp: 'https://(127\.0\.0\.1|0\.0\.0\.0):6443'
+    replace: "https://{{ ansible_host | default(inventory_hostname) }}:{{ k3s_api_port }}"
+  delegate_to: localhost
+  become: false
+  run_once: true

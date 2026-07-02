@@ -1,4 +1,13 @@
 ---
+- name: Refuse placeholder k3s token
+  ansible.builtin.assert:
+    that:
+      - k3s_token is defined
+      - k3s_token | length >= 32
+      - k3s_token != 'change-me-use-vault'
+    fail_msg: "Set vault_k3s_token in the encrypted Ansible Vault file before installing k3s."
+    quiet: true
+
 - name: Resolve first k3s server host
   ansible.builtin.set_fact:
     k3s_first_server: "{{ hostvars[groups['k3s_servers'][0]].ansible_host | default(groups['k3s_servers'][0]) }}"
@@ -21,7 +30,7 @@
       server: "https://{{ k3s_first_server }}:{{ k3s_api_port }}"
       token: "{{ k3s_token }}"
       node-label:
-        - "node-role.kubernetes.io/gpu=true"
+        - "gpu-ops.io/gpu-node=true"
         - "nvidia.com/gpu.present=true"
 
 - name: Install k3s agent
@@ -36,4 +45,3 @@
     name: k3s-agent
     enabled: true
     state: started
-

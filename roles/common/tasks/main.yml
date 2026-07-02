@@ -14,19 +14,21 @@
     name: iscsid
     enabled: true
     state: started
-  when: ansible_service_mgr == "systemd"
+  when: ansible_facts.service_mgr == "systemd"
 
 - name: Enable qemu guest agent when installed
   ansible.builtin.service:
     name: qemu-guest-agent
     enabled: true
     state: started
-  when: ansible_service_mgr == "systemd"
+  when:
+    - ansible_facts.service_mgr == "systemd"
+    - ansible_facts.virtualization_role | default("") == "guest"
 
 - name: Disable swap immediately
   ansible.builtin.command: swapoff -a
   changed_when: false
-  when: ansible_swaptotal_mb | int > 0
+  when: ansible_facts.swaptotal_mb | int > 0
 
 - name: Remove active swap entries from fstab
   ansible.builtin.replace:
@@ -65,4 +67,3 @@
       value: "1"
     - name: net.ipv4.ip_forward
       value: "1"
-

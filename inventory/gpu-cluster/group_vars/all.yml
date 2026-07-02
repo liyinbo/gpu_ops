@@ -1,11 +1,16 @@
 ---
-ansible_user: ubuntu
+ansible_user: "{{ vault_ansible_user | default('ubuntu') }}"
+ansible_password: "{{ vault_ansible_password | default(omit) }}"
+ansible_ssh_private_key_file: "{{ lookup('ansible.builtin.env', 'GPU_OPS_SSH_KEY') | default(omit, true) }}"
 ansible_become_password: "{{ vault_ansible_become_password | default(omit) }}"
 cluster_name: gpu-cluster
+gpu_single_node_ip: 192.168.8.130
 
 k3s_version: v1.31.6+k3s1
 k3s_token: "{{ vault_k3s_token | default('change-me-use-vault') }}"
 k3s_server_bind_address: 0.0.0.0
+k3s_tls_sans:
+  - "{{ gpu_single_node_ip }}"
 k3s_api_port: 6443
 k3s_kubeconfig_dest: "{{ playbook_dir }}/../kubeconfig-gpu-cluster.yaml"
 
@@ -25,5 +30,5 @@ common_packages:
   - rsync
   - vim
 
-gpu_runtime_install_nvidia_toolkit: true
+gpu_runtime_install_nvidia_toolkit: false
 gpu_runtime_containerd_config_path: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl

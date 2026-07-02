@@ -1,7 +1,7 @@
 ---
-- name: Bootstrap Flux prerequisites
-  hosts: k3s_servers[0]
-  become: true
+- name: Install Flux controllers and apply cluster entrypoint
+  hosts: localhost
+  gather_facts: false
+  become: false
   roles:
     - flux
-
