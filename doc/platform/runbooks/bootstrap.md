@@ -23,8 +23,8 @@ vault_k3s_token: your-long-random-k3s-token
 
 The real `vault.yml` is ignored by Git to avoid accidentally committing plaintext. The committed `vault.yml.example` shows the required variable names.
 
-The default GPU Operator mode is operator-managed driver and toolkit installation. If the target host already has a validated NVIDIA driver or container toolkit, update `infrastructure/nvidia-gpu-operator/helmrelease.yaml` before reconciliation and record the reason in `doc/implement-status.md`.
+The default GPU Operator mode is operator-managed driver and toolkit installation. If the target host already has a validated NVIDIA driver or container toolkit, update `infrastructure/nvidia-gpu-operator/helmrelease.yaml` before reconciliation and record the reason in `doc/platform/implement-status.md`.
 
 Flux pulls `clusters/gpu-cluster` from `https://github.com/liyinbo/gpu_ops.git` on branch `main` after the seed apply creates the `flux-system/gpu-ops` GitRepository and `flux-system/gpu-cluster` Kustomization.
 
-See `doc/ssh-access.md` when preflight fails before host facts are gathered.
+See `doc/platform/runbooks/ssh-access.md` when preflight fails before host facts are gathered.

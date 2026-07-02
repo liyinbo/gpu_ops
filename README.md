@@ -12,4 +12,11 @@ scripts/run-static-checks.sh
 uv run ansible-playbook -i inventory/gpu-cluster/hosts.yml playbooks/00-preflight.yml --vault-password-file=.vault_pass
 ```
 
-If preflight cannot gather host facts, check `doc/ssh-access.md`. Full bootstrap steps are in `doc/bootstrap.md`; requirements, roadmap, status, and test cases live in `doc/`.
+Documentation starts at `doc/README.md`.
+
+- Platform control docs: `doc/platform/`
+- Platform runbooks: `doc/platform/runbooks/`
+- Task control docs: `doc/tasks/<task>/`
+- TTS task docs: `doc/tasks/tts/`
+
+For platform operations, use `doc/platform/runbooks/bootstrap.md` and `doc/platform/runbooks/ssh-access.md`.

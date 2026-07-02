@@ -30,7 +30,7 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Added encrypted SSH username wiring through `vault_ansible_user`, optional encrypted SSH password wiring through `vault_ansible_password`, and key-based SSH support through the local `GPU_OPS_SSH_KEY` environment variable.
 - Configured the single-node inventory target as `gpu-cp01` at `192.168.8.130`.
 - Added `playbooks/00-preflight.yml` to validate inventory shape and inspect OS/kernel/swap, Secure Boot, NVIDIA driver visibility, and current k3s state before provisioning.
-- Added `doc/ssh-access.md` with key-based and vaulted password SSH access flows for the single GPU node.
+- Added `doc/platform/runbooks/ssh-access.md` with key-based and vaulted password SSH access flows for the single GPU node.
 - Hardened the k3s server role to reject the placeholder token, set `tls-san`, fetch kubeconfig with `0600` source mode, rewrite the fetched kubeconfig endpoint to the node address, and label the single server as a GPU node.
 - Disabled host-side NVIDIA Container Toolkit installation by default so GPU Operator owns toolkit/runtime integration.
 - Added Flux-compatible NVIDIA GPU Operator HelmRepository and HelmRelease manifests under `infrastructure/nvidia-gpu-operator`.
@@ -39,7 +39,7 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Configured GPU Operator values for operator-managed driver, toolkit, device plugin, GPU Feature Discovery, DCGM exporter, MIG `single`, and k3s containerd integration.
 - Added live validation scripts for node readiness, GPU Operator health/GPU allocatable resources, and the NVIDIA runtime test pod.
 - Added `scripts/run-static-checks.sh` as the local static gate for Ansible syntax, kustomize render, shell syntax, and inventory graph checks.
-- Added `doc/backup-recovery.md` covering kubeconfig regeneration, encrypted vault backup, k3s server data, Flux state, and GPU workload recovery checks.
+- Added `doc/platform/runbooks/backup-recovery.md` covering kubeconfig regeneration, encrypted vault backup, k3s server data, Flux state, and GPU workload recovery checks.
 - Generated a compliant local `vault_k3s_token` and stored it only in the ignored encrypted Ansible Vault file.
 - Ran base OS provisioning successfully on `gpu-cp01`; swap is disabled, kernel modules/sysctls are configured, and `iscsid` is enabled.
 - Confirmed the node is a KVM host, not a guest, and updated the common role to skip `qemu-guest-agent` service management unless the target is a virtual guest.

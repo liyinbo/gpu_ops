@@ -42,7 +42,7 @@
 - Confirm k3s node readiness.
 - Confirm GPU Operator pods and ClusterPolicy are healthy.
 - Run the NVIDIA runtime test pod.
-- Capture test results in `doc/implement-status.md`.
+- Capture test results in `doc/platform/implement-status.md`.
 
 ## Phase 7: Hardening
 

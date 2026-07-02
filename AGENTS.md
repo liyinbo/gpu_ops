@@ -8,12 +8,26 @@ GPU-focused Kubernetes operations repo for provisioning Ubuntu GPU nodes, instal
 
 All project documentation and planning documents MUST be placed in the `doc/` folder. Do not create markdown files or documentation outside of `doc/`, except this file and `README.md`.
 
-The repo is driven by these control documents:
+Documentation is organized by ownership boundary.
 
-- `doc/requirements.md` - source of truth for functional and operational requirements.
-- `doc/implement-roadmap.md` - ordered implementation plan.
-- `doc/implement-status.md` - current progress, decisions, and open blockers.
-- `doc/test-cases.md` - validation and acceptance test matrix.
+Platform control documents live under `doc/platform/`:
+
+- `doc/platform/requirements.md` - source of truth for shared GPU platform requirements.
+- `doc/platform/implement-roadmap.md` - ordered platform implementation plan.
+- `doc/platform/implement-status.md` - current platform progress, decisions, and open blockers.
+- `doc/platform/test-cases.md` - platform validation and acceptance test matrix.
+
+Task-specific work lives under `doc/tasks/<task>/`. Every task MUST maintain its own:
+
+- `requirements.md`
+- `implement-roadmap.md`
+- `implement-status.md`
+- `test-cases.md`
+
+Runbook-style procedural docs belong under `runbooks/` next to the thing they operate:
+
+- platform runbooks: `doc/platform/runbooks/`
+- task runbooks: `doc/tasks/<task>/runbooks/`
 
 When making implementation changes, update the relevant control document in the same change. Keep status factual and dated.
 
@@ -27,7 +41,7 @@ When making implementation changes, update the relevant control document in the 
 - `apps/` - GitOps applications and workloads
 - `tests/` - Kubernetes test manifests
 - `scripts/` - Operational helper scripts
-- `doc/` - Project documentation, requirements, roadmap, status, and test cases
+- `doc/` - Project documentation, platform docs, task docs, and runbooks
 
 ## Operating Notes
 
@@ -37,7 +51,7 @@ When making implementation changes, update the relevant control document in the 
 - Prefer idempotent Ansible tasks over ad hoc shell scripts.
 - Do not make destructive GPU driver, CUDA, or k3s changes without first checking current host state.
 - Treat placeholder inventory values as examples only; verify real hostnames, IPs, SSH users, GPU models, and OS versions before running playbooks.
-- NVIDIA GPU Operator is the intended owner for Kubernetes GPU resources. Do not add standalone NVIDIA device plugin management unless `doc/requirements.md` is updated to change that decision.
+- NVIDIA GPU Operator is the intended owner for Kubernetes GPU resources. Do not add standalone NVIDIA device plugin management unless `doc/platform/requirements.md` is updated to change that decision.
 
 ## Default Workflow
 

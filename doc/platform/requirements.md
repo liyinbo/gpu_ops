@@ -48,7 +48,7 @@ The repo must include test manifests and commands that verify node readiness, GP
 - Keep host inventory examples clearly replaceable.
 - Run Ansible syntax checks before applying playbooks to real hosts.
 - Run manifest rendering checks before committing GitOps changes.
-- Document known blockers and incomplete work in `doc/implement-status.md`.
+- Document known blockers and incomplete work in `doc/platform/implement-status.md`.
 
 ## Out Of Scope
 
