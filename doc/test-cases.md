@@ -48,7 +48,7 @@ Command:
 uv run ansible-playbook -i inventory/gpu-cluster/hosts.yml playbooks/04-flux.yml --vault-password-file=.vault_pass
 ```
 
-Expected result: Flux controllers are installed or confirmed present, and `clusters/gpu-cluster` is applied to create/update the GPU Operator HelmRepository and HelmRelease.
+Expected result: Flux controllers are installed or confirmed present, and `clusters/gpu-cluster` is applied to create/update the GitHub-backed GitRepository/Kustomization plus the GPU Operator HelmRepository and HelmRelease.
 
 ### TC-GPU-003 Cluster Kustomize Render
 

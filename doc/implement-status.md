@@ -45,6 +45,7 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Confirmed the node is a KVM host, not a guest, and updated the common role to skip `qemu-guest-agent` service management unless the target is a virtual guest.
 - Installed k3s `v1.31.6+k3s1` on `limbo-gpu-001` and fetched the local ignored kubeconfig.
 - Installed Flux controllers with `playbooks/04-flux.yml` and applied `clusters/gpu-cluster`.
+- Added a Flux `GitRepository` and `Kustomization` for `https://github.com/liyinbo/gpu_ops.git` on branch `main`, path `./clusters/gpu-cluster`.
 - Reconciled NVIDIA GPU Operator `v26.3.3` through Flux.
 
 ## Verified
@@ -75,6 +76,7 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - k3s node readiness passed for `limbo-gpu-001` at `192.168.8.130`.
 - Flux controllers are running in `flux-system`.
 - GPU Operator HelmRepository is ready and HelmRelease reports `Helm install succeeded for release gpu-operator/gpu-operator.v1 with chart gpu-operator@v26.3.3`.
+- Flux `gpu-ops` GitRepository and `gpu-cluster` Kustomization reconcile from GitHub.
 - GPU Operator ClusterPolicy is `ready`.
 - GPU Operator pods are healthy; node allocatable includes `nvidia.com/gpu: 1`.
 - NVIDIA runtime test pod completed and logged `NVIDIA-SMI 580.126.20`, `Driver Version: 580.126.20`, and `NVIDIA GeForce RTX 4090`.
@@ -82,7 +84,6 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 
 ## Open Items
 
-- Decide Flux remote, branch, path, and deploy key flow.
 - Optional: configure a persistent GitRepository/Kustomization source after the remote and deploy key are known.
 
 ## Risks

@@ -8,7 +8,7 @@
 6. Run static checks with `scripts/run-static-checks.sh`.
 7. Run `playbooks/00-preflight.yml` with `--vault-password-file=.vault_pass`.
 8. Run `playbooks/site.yml` with `--vault-password-file=.vault_pass`.
-9. Install Flux controllers and reconcile `clusters/gpu-cluster` with `playbooks/04-flux.yml`.
+9. Install Flux controllers and seed the GitHub-backed cluster sync with `playbooks/04-flux.yml`.
 10. Verify GPU Operator health.
 11. Validate GPU scheduling with `tests/nvidia-runtime-test.yaml`.
 
@@ -24,5 +24,7 @@ vault_k3s_token: your-long-random-k3s-token
 The real `vault.yml` is ignored by Git to avoid accidentally committing plaintext. The committed `vault.yml.example` shows the required variable names.
 
 The default GPU Operator mode is operator-managed driver and toolkit installation. If the target host already has a validated NVIDIA driver or container toolkit, update `infrastructure/nvidia-gpu-operator/helmrelease.yaml` before reconciliation and record the reason in `doc/implement-status.md`.
+
+Flux pulls `clusters/gpu-cluster` from `https://github.com/liyinbo/gpu_ops.git` on branch `main` after the seed apply creates the `flux-system/gpu-ops` GitRepository and `flux-system/gpu-cluster` Kustomization.
 
 See `doc/ssh-access.md` when preflight fails before host facts are gathered.
