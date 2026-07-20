@@ -34,6 +34,14 @@ The application has migrated to `https://github.com/liyinbo/tts_service` and pro
 - GitOps rollback to chart `0.1.2`: pass as Helm revision 3; UI and synthesis passed.
 - PVC retention across cutover, upgrade, and rollback: pass; UID `b85df8c9-64da-4f25-ae03-8dbd27f6e983`, volume `pvc-b85df8c9-64da-4f25-ae03-8dbd27f6e983`, capacity 200Gi remained unchanged.
 - Helm-managed scheduling, startup, web UI, streaming, voice clone, private HTTPS/DNS, rollback preflight, and endpoint matrix checks: pass.
+- Final `0.1.3` forward reconciliation: pass as Helm revision 4; all Flux Kustomizations reached commit `d0778eb` ready.
+- Five-minute soak from 2026-07-20 14:32:13 to 14:36:45 +08:00: 10/10 samples passed with API/web ready, zero restarts, one allocatable GPU, and HTTPS health HTTP 200.
+- Post-soak synthesis: pass with `first_chunk_ms=113.81` and `total_ms=520.36`, consistent with the warm baseline.
+- Post-soak GPU memory: 9798MiB + 6230MiB across the two TTS stages (16028MiB total), consistent with the approximately 16043MiB baseline.
+- Post-soak unsafe-route check: `POST /v1/completions` returned HTTP 404; API and web restart counts remained zero.
+- `tts_service` GitHub Actions run `29721344193`: pass for static/chart tests, mock-backed safe gateway, high/critical vulnerability scan, and kind-backed Helm install/upgrade.
+- Renovate configuration and scheduled workflow added for reviewed digest-pinned chart/image update proposals.
+- Renovate workflow run `29722240739`: pass; dependency dashboard issue `#1` created.
 
 - Platform GPU stack is available and validated in `doc/platform/implement-status.md`.
 - `scripts/run-static-checks.sh`: pass after adding TTS and private HTTPS platform manifests.
@@ -78,3 +86,10 @@ The application has migrated to `https://github.com/liyinbo/tts_service` and pro
 - Flux pruning during the Kustomize-to-Helm ownership handoff could delete or recreate resources if the old and new ownership boundaries are not sequenced explicitly.
 - Changing Deployment selectors, Service selectors, resource names, or PVC ownership during migration could cause downtime or cache loss.
 - Published charts and images create a cross-repository availability and version-compatibility dependency; production references must remain immutable and retained.
+
+## Migration Decisions
+
+- Production chart: `0.1.3`, digest `sha256:394ea5dc51017be4dbbf6ee5d3f194bb27217d6d4e20528ecb98df8de4d38908`.
+- Production web image digest: `sha256:69026d273f6dbc48784675a1f6faf8de85587793b4c45752b9a778ae8dcfee73`.
+- Production vLLM-Omni image digest: `sha256:0b77dd0f5c3fe8ea2855a2e8474230cdd7c3a7a843df8708afa9786c1d99be8a`.
+- Release images carry BuildKit provenance and SBOM attestations. Charts are pinned by OCI digest; signature enforcement is deferred until Flux verification keys are managed by the platform.

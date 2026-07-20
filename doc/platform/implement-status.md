@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Date: 2026-07-03
+Date: 2026-07-20
 
 The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, validates GPU scheduling with an NVIDIA runtime test pod, and provides a live Traefik plus cert-manager private HTTPS path for GPU workloads. NVIDIA GPU Operator is the selected GPU resource management layer.
 
@@ -91,13 +91,12 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Live `letsencrypt-prod` issuer creation: pass. `ClusterIssuer/letsencrypt-prod` reports `Ready=True`.
 - Live TTS certificate issuance: pass. `tts/tts-home-hope-leniency-com` reports `Ready=True` for `tts.home.hope-leniency.com`, with a Let's Encrypt `YR1` certificate valid from 2026-07-02 to 2026-09-30.
 - Private HTTPS route validation through the GPU node: pass with `curl --resolve tts.home.hope-leniency.com:443:192.168.8.130 https://tts.home.hope-leniency.com/`.
+- TTS Helm migration reconciliation exposed an existing Flux ownership transition for NVIDIA resources: parent pruning removed the old `gpu-operator` namespace before the child Kustomization could adopt it, and k3s restarted after containerd exited on SIGHUP. The namespace and exact committed GPU Operator release were reconciled without forcing finalizers; GPU Operator returned ready, the node again advertised `nvidia.com/gpu: 1`, and all Flux Kustomizations reached commit `d0778eb` ready before TTS cutover continued.
 
 ## Open Items
 
 - `cert-manager/alidns-secrets` was copied live from the existing storage cluster Secret through the Kubernetes API without printing or committing secret data; workload certificate issuance now works.
 - Confirm whether the GPU cluster should continue using Traefik hostPort routing on `192.168.8.130` or move to a dedicated MetalLB ingress VIP.
-- Update the external DNS host override for `tts.home.hope-leniency.com`; it currently resolves to `192.168.8.20`, while the validated GPU endpoint is `192.168.8.130`.
-- The separate `network-ops` DNS source of truth referenced by `storage_server_ops` is not present under `/Users/limbo/repo`; updating the router DNS override requires that repo or another router/DNS control path.
 
 ## Risks
 

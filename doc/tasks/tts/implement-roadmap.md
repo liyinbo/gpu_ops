@@ -53,7 +53,7 @@ Exit gate: both repositories document the same ownership and compatibility contr
 - [x] Create a reusable Helm chart for API and web Deployments, Services, probes, resources, scheduling inputs, application configuration, and optional model-cache PVC creation.
 - [x] Make `existingClaim`, resource requests/limits, node selectors, tolerations, affinity, model selection, runtime arguments, and image references configurable.
 - [x] Keep chart-managed Ingress and Certificate optional and disabled by default.
-- [ ] Add CI for image builds, Helm lint/template tests, API contract tests, streaming tests, UI tests, chart install/upgrade tests, and vulnerability scanning.
+- [x] Add CI for image builds, Helm lint/template tests, API contract tests, streaming tests, UI tests, chart install/upgrade tests, and vulnerability scanning.
 - [x] Publish immutable API/web images and the first versioned OCI chart; record image digests and chart version.
 
 Exit gate: a clean test cluster can install the published chart, application CI passes, and all published artifacts are immutable and traceable to a source revision.
@@ -78,7 +78,7 @@ Exit gate: rendered output is compatibility-reviewed, the PVC retention path is 
 - [x] Remove legacy application resources from the old Kustomize ownership boundary without pruning the retained PVC, Certificate, Ingress, or namespace.
 - [x] Reconcile the pinned Helm release and verify it adopts the intended stable service contract without creating a second GPU workload.
 - [x] Run scheduling, startup, web UI, streaming, voice clone, endpoint safety, HTTPS, DNS, PVC, and rollback acceptance tests.
-- [ ] Observe the release for an agreed soak period and compare GPU memory, first-chunk latency, total latency, errors, and restarts with the baseline.
+- [x] Observe the release for an agreed soak period and compare GPU memory, first-chunk latency, total latency, errors, and restarts with the baseline.
 
 Exit gate: all migration test cases pass, cache data remains intact, the unsafe endpoint checks pass, and the soak period shows no material regression.
 
@@ -88,6 +88,6 @@ Exit gate: all migration test cases pass, cache data remains intact, the unsafe 
 - [x] Keep cluster smoke tests and deploy, validate, rollback, and troubleshooting runbooks in `gpu_ops`; link to `tts_service` for product development and chart documentation.
 - [x] Configure dependency automation to propose pinned chart/image upgrades through reviewed pull requests.
 - [x] Document normal upgrade, rollback, CVE response, chart compatibility, and artifact unavailability procedures.
-- [ ] Update status and validation evidence in both repositories and close the legacy manifest deployment path.
+- [x] Update status and validation evidence in both repositories and close the legacy manifest deployment path.
 
 Exit gate: `gpu_ops` contains only cluster ownership concerns, `tts_service` is the authoritative application/chart source, and a documented rollback to the preceding chart version succeeds.
