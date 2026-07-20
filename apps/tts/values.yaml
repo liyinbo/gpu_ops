@@ -1,7 +1,7 @@
 api:
   image:
     repository: vllm/vllm-omni
-    tag: v0.22.0
+    tag: v0.24.0
     digest: sha256:0b77dd0f5c3fe8ea2855a2e8474230cdd7c3a7a843df8708afa9786c1d99be8a
     pullPolicy: IfNotPresent
   model: Qwen/Qwen3-TTS-12Hz-1.7B-Base
