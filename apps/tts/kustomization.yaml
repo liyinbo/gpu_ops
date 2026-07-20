@@ -4,19 +4,14 @@ kind: Kustomization
 namespace: tts
 resources:
   - namespace.yaml
-  - configmap.yaml
   - pvc.yaml
-  - deployment-api.yaml
-  - service-api.yaml
-  - deployment-web.yaml
-  - service-web.yaml
   - certificate.yaml
   - ingress.yaml
+  - oci-repository.yaml
+  - helmrelease.yaml
 configMapGenerator:
-  - name: tts-web-assets
+  - name: tts-service-values
     files:
-      - web/index.html
-      - web/app.js
-      - web/styles.css
+      - values.yaml
 generatorOptions:
   disableNameSuffixHash: true

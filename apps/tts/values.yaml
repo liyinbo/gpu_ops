@@ -1,0 +1,34 @@
+api:
+  image:
+    repository: vllm/vllm-omni
+    tag: v0.22.0
+    digest: sha256:0b77dd0f5c3fe8ea2855a2e8474230cdd7c3a7a843df8708afa9786c1d99be8a
+    pullPolicy: IfNotPresent
+  model: Qwen/Qwen3-TTS-12Hz-1.7B-Base
+  gpuMemoryUtilization: "0.40"
+  resources:
+    requests:
+      cpu: "4"
+      memory: 24Gi
+      nvidia.com/gpu: "1"
+    limits:
+      cpu: "12"
+      memory: 48Gi
+      nvidia.com/gpu: "1"
+
+web:
+  image:
+    repository: ghcr.io/liyinbo/tts-service-web
+    tag: v0.1.2
+    digest: sha256:f424413b2c685188b879c3de6c14a79da9227ecb963e52651306cc7a86a3e252
+    pullPolicy: IfNotPresent
+
+persistence:
+  enabled: true
+  existingClaim: qwen3-tts-model-cache
+
+ingress:
+  enabled: false
+
+certificate:
+  enabled: false

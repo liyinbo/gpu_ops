@@ -1,0 +1,11 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: tts-service-chart
+  namespace: tts
+spec:
+  interval: 1h
+  url: oci://ghcr.io/liyinbo/charts/tts-service
+  ref:
+    digest: sha256:c74038372e1c8b9a206852fe5b1845b160b7fb92270693bc7eb0a72ff76da5d9
