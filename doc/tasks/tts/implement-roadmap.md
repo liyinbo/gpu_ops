@@ -24,12 +24,12 @@
 
 ## Phase 4: Validation
 
-- [ ] Verify pod scheduling on the GPU node.
-- [ ] Verify realtime streaming synthesis.
-- [ ] Verify voice clone behavior using approved non-private test inputs.
-- [ ] Verify every web UI workflow against the backend API.
-- [ ] Verify private HTTPS access through `tts.home.hope-leniency.com` or the final approved hostname.
-- [ ] Verify GPU memory and latency under a small load test.
+- [x] Verify pod scheduling on the GPU node.
+- [x] Verify realtime streaming synthesis.
+- [x] Verify voice clone behavior using approved non-private test inputs.
+- [x] Verify every web UI workflow against the backend API.
+- [x] Verify private HTTPS access through `tts.home.hope-leniency.com` or the final approved hostname.
+- [x] Verify GPU memory and latency under a small load test.
 
 ## Phase 5: Operations
 
