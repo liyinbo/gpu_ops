@@ -4,7 +4,7 @@ set -eu
 kubectl kustomize apps/tts >/tmp/gpu-ops-tts-render.yaml
 kubectl kustomize clusters/gpu-cluster >/tmp/gpu-ops-cluster-render.yaml
 helm template tts-service oci://ghcr.io/liyinbo/charts/tts-service \
-  --version 0.1.2 \
+  --version 0.1.3 \
   --namespace tts \
   --values apps/tts/values.yaml \
   >/tmp/gpu-ops-tts-helm-render.yaml

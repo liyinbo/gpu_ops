@@ -4,24 +4,36 @@
 
 Date: 2026-07-20
 
-The initial TTS GitOps implementation is present in the repo and has been validated live. It deploys Qwen3-TTS Base on vLLM-Omni, a browser UI, Kubernetes GPU scheduling, model-cache PVC, and private HTTPS exposure for `tts.home.hope-leniency.com`.
+The Helm-managed TTS deployment is live and validated. It deploys Qwen3-TTS Base on vLLM-Omni, a browser UI/safe-route gateway, Kubernetes GPU scheduling, retained model-cache PVC, and private HTTPS exposure for `tts.home.hope-leniency.com`.
 
-A migration to a separate `tts_service` application repository and a pinned OCI Helm release is planned in Phases 6-10 of `implement-roadmap.md`. No deployment ownership or live cluster resources have been changed for this migration yet.
+The application has migrated to `https://github.com/liyinbo/tts_service` and production is managed by a digest-pinned Flux OCI source and HelmRelease. `gpu_ops` retains the namespace, existing PVC, TLS, Ingress, exposure contract, production values, and live smoke tests.
 
 ## Completed
+
+- Created `liyinbo/tts_service` with application control docs, frontend source, non-root web/safe-route image, Helm chart, tests, and release workflow.
+- Published chart/image releases `v0.1.2` and `v0.1.3`; production is pinned to `v0.1.3` digests.
+- Preserved the pre-migration implementation in Git commit `a1041b8`.
+- Performed a suspended two-commit ownership handoff so legacy Kustomize and Helm never managed workload objects concurrently.
+- Removed legacy application manifests and frontend assets from `gpu_ops` after runtime and rollback validation.
 
 - Created task-scoped control documents under `doc/tasks/tts/`.
 - Reserved the task namespace for multiple TTS models, starting with Qwen3 TTS and vLLM-Omni.
 - Added a first-class web UI requirement so all TTS service functions can be tried from a browser.
 - Documented the private HTTPS exposure pattern from `storage_server_ops`: Traefik Ingress, cert-manager `letsencrypt-prod` Certificate, and DNS/exposure contract coordination for `*.home.hope-leniency.com`.
-- Added `apps/tts` GitOps manifests for namespace, runtime config, model-cache PVC, vLLM-Omni API deployment, web UI deployment, services, cert-manager Certificate, and Traefik Ingress.
+- The initial implementation added `apps/tts` manifests for namespace, runtime config, model-cache PVC, API/web workloads and services, Certificate, and Ingress; the application-shaped resources were later migrated to the Helm chart.
 - Wired `apps` into `clusters/gpu-cluster`.
 - Added `apps/exposure-contract.yaml` entry for `tts.home.hope-leniency.com`.
-- Added browser UI assets under `apps/tts/web/` for text input, binary streaming playback, Base-task voice clone reference input, model/task/language/voice selectors, request status, errors, chunk counts, bytes, TTFB, and total latency.
+- The initial browser assets provided text input, streaming playback, voice clone reference input, selectors, status/errors, and latency; their authoritative source is now `tts_service/web`.
 - Added focused validation scripts under `scripts/tts/`.
 - Updated deployment, validation, troubleshooting, and rollback runbooks.
 
 ## Verified
+
+- Flux Helm install of chart `0.1.2`: pass; release ready with one API pod and one web pod.
+- GitOps upgrade to chart `0.1.3`: pass as Helm revision 2.
+- GitOps rollback to chart `0.1.2`: pass as Helm revision 3; UI and synthesis passed.
+- PVC retention across cutover, upgrade, and rollback: pass; UID `b85df8c9-64da-4f25-ae03-8dbd27f6e983`, volume `pvc-b85df8c9-64da-4f25-ae03-8dbd27f6e983`, capacity 200Gi remained unchanged.
+- Helm-managed scheduling, startup, web UI, streaming, voice clone, private HTTPS/DNS, rollback preflight, and endpoint matrix checks: pass.
 
 - Platform GPU stack is available and validated in `doc/platform/implement-status.md`.
 - `scripts/run-static-checks.sh`: pass after adding TTS and private HTTPS platform manifests.
@@ -52,10 +64,6 @@ A migration to a separate `tts_service` application repository and a pinned OCI 
 
 ## Open Items
 
-- Create and initialize the `tts_service` repository.
-- Select the container/chart registry paths and artifact provenance policy.
-- Decide whether the first release wraps vLLM-Omni with a TTS-only API boundary or retains ingress-only route filtering temporarily.
-- Define the cutover maintenance window and post-cutover soak duration.
 - Decide whether `tts.home.hope-leniency.com` should stay on GPU cluster Traefik hostPort at `192.168.8.130` or move to a future MetalLB ingress VIP.
 - Decide whether to add additional Qwen3-TTS deployments for CustomVoice and VoiceDesign after Base voice clone is validated.
 

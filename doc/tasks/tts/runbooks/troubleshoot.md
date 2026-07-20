@@ -1,5 +1,15 @@
 # TTS Troubleshooting Runbook
 
+## Flux and Helm
+
+```bash
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get sources oci -n tts
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get helmreleases -n tts
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts describe helmrelease tts-service
+```
+
+The OCI source must report the digest pinned in `apps/tts/oci-repository.yaml`. The HelmRelease uses a 30-minute timeout because model warmup can exceed Helm's five-minute default.
+
 ## Pod and GPU
 
 ```bash
@@ -47,7 +57,7 @@ kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts port-forward svc/tts-web
 open http://127.0.0.1:18080/
 ```
 
-The browser UI calls same-origin `/health`, `/v1/audio/voices`, and `/v1/audio/speech`. If direct web UI works but the hostname fails, focus on Ingress, TLS, or DNS.
+The browser UI calls same-origin `/health`, `/v1/audio/voices`, and `/v1/audio/speech`. The web image proxies only supported TTS routes and returns 404 for other `/v1` paths. If direct web UI works but the hostname fails, focus on Ingress, TLS, or DNS.
 
 ## Private HTTPS Troubleshooting
 

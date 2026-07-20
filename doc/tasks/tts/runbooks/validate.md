@@ -12,11 +12,14 @@ scripts/run-static-checks.sh
 ## Runtime
 
 ```bash
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get sources oci -n tts
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get helmreleases -n tts
 KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-scheduling.sh
 KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-api-startup.sh
 KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-web-ui.sh
 KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-streaming.sh
 KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-voice-clone.sh
+KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/tts/check-openai-endpoints.sh
 ```
 
 Expected checks:
@@ -27,6 +30,8 @@ Expected checks:
 - voice clone response using the synthetic non-private test input
 - web UI loads and includes streaming controls
 - basic latency observation from the browser UI and command timing
+- pinned OCI chart digest, ready HelmRelease, and digest-pinned images
+- unchanged `qwen3-tts-model-cache` PVC identity across upgrades and rollback
 
 ## Private Hostname Checks
 

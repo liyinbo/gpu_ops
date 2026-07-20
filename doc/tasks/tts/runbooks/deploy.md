@@ -1,14 +1,15 @@
 # TTS Deploy Runbook
 
-This runbook deploys the initial Qwen3-TTS service through the repo GitOps entry point.
+This runbook deploys the Qwen3-TTS service from the pinned `tts_service` OCI Helm chart through Flux.
 
 ## Inputs
 
 - Model artifact source: `Qwen/Qwen3-TTS-12Hz-1.7B-Base`
-- Serving image: `vllm/vllm-omni:v0.22.0`
+- Serving image: digest-pinned `vllm/vllm-omni:v0.22.0`
 - Model cache PVC: `tts/qwen3-tts-model-cache`, mounted at `/models`
 - API GPU request/limit: `nvidia.com/gpu: 1`
-- Web UI: nginx serving ConfigMap assets from `apps/tts/web/`
+- Web UI and safe-route gateway: digest-pinned image published by `liyinbo/tts_service`
+- Chart source: digest-pinned `oci://ghcr.io/liyinbo/charts/tts-service`
 - Private hostname: `tts.home.hope-leniency.com`
 - Ingress class: `traefik`; current single-node implementation uses Traefik hostPort 80/443 on `192.168.8.130`
 - Certificate issuer: cert-manager ClusterIssuer `letsencrypt-prod`
@@ -27,10 +28,13 @@ If the `ClusterIssuer` is missing, install or reconcile cert-manager and the DNS
 
 ## Deploy
 
-Flux reconciles `clusters/gpu-cluster`, which now includes `../../apps`.
+Flux reconciles `gpu-apps`. The chart source, release, and cluster values are under `apps/tts`; TLS, Ingress, PVC selection, and namespace remain cluster-owned.
 
 ```bash
-kubectl --kubeconfig kubeconfig-gpu-cluster.yaml apply -k clusters/gpu-cluster
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile kustomization gpu-apps --with-source
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile helmrelease tts-service -n tts --with-source
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get sources oci -n tts
+flux --kubeconfig kubeconfig-gpu-cluster.yaml get helmreleases -n tts
 kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts rollout status deployment/qwen3-tts-api --timeout=30m
 kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts rollout status deployment/tts-web --timeout=5m
 ```
@@ -38,8 +42,8 @@ kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts rollout status deploymen
 For Flux-managed reconciliation after the commit is pushed:
 
 ```bash
-flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile source git gpu-ops -n flux-system
-flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile kustomization gpu-cluster -n flux-system --with-source
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile kustomization gpu-apps -n flux-system --with-source
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile helmrelease tts-service -n tts --with-source
 ```
 
 ## DNS

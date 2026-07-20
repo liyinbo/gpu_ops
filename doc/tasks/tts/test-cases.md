@@ -152,6 +152,6 @@ Expected result: Flux reports the preceding Helm release ready, the API and UI r
 
 ### TC-TTS-160 Post-Cutover Soak
 
-Observe the Helm-managed release for the duration specified in the cutover runbook.
+Observe the Helm-managed release for at least five minutes after the final forward reconciliation.
 
 Expected result: pod restarts, error rate, GPU memory, warm first-chunk latency, and total synthesis latency remain within the documented baseline or approved tolerances.
