@@ -1,0 +1,26 @@
+---
+# Let's Encrypt production issuer using Alibaba Cloud DNS-01.
+# The alidns webhook groupName must match infrastructure/cert-manager values.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@hope-leniency.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - dns01:
+          webhook:
+            groupName: acme.hope-leniency.com
+            solverName: alidns-solver
+            config:
+              regionId: cn-hangzhou
+              accessTokenSecretRef:
+                name: alidns-secrets
+                key: access-token
+              secretKeySecretRef:
+                name: alidns-secrets
+                key: secret-key

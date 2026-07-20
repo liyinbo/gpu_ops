@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tts
+  labels:
+    app.kubernetes.io/name: tts
+    app.kubernetes.io/part-of: gpu-ops

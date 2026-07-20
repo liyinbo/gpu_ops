@@ -1,0 +1,13 @@
+# Machine-readable private HTTPS exposure contract.
+# Hostname ownership and LAN DNS records are coordinated in network-ops.
+apps:
+  - name: tts
+    hostname: tts.home.hope-leniency.com
+    ingressIP: 192.168.8.130
+    namespace: tts
+    ingressResource: tts-ingress
+    certificateSecret: tts-home-hope-leniency-com-tls
+    certificateNamespace: tts
+    port: 443
+    phase: planned
+    notes: Qwen3 TTS web UI and API on the GPU cluster. DNS should map this hostname to the GPU cluster Traefik endpoint unless a different ingress VIP is assigned.

@@ -70,6 +70,18 @@ kubectl kustomize infrastructure/nvidia-gpu-operator
 
 Expected result: namespace, NVIDIA HelmRepository, and GPU Operator HelmRelease render without errors. The HelmRelease pins the chart version and configures k3s containerd integration.
 
+### TC-GPU-006 Private HTTPS Add-on Render
+
+Command:
+
+```bash
+kubectl kustomize infrastructure/traefik
+kubectl kustomize infrastructure/cert-manager
+kubectl kustomize infrastructure/cert-manager-issuers
+```
+
+Expected result: Traefik, cert-manager, and issuer manifests render without errors.
+
 ## Host Provisioning Checks
 
 ### TC-GPU-009 Preflight Inventory and Host State
@@ -153,3 +165,7 @@ KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/check-gpu-runtime-test.sh
 ```
 
 Expected result: pod completes and logs `nvidia-smi` output containing `NVIDIA-SMI`.
+
+### TC-GPU-040 Private HTTPS Platform Add-ons
+
+Expected result: Traefik exposes an IngressClass named `traefik`, cert-manager CRDs are present, and ClusterIssuer `letsencrypt-prod` exists. Certificate readiness requires the out-of-band `cert-manager/alidns-secrets` DNS credential Secret.

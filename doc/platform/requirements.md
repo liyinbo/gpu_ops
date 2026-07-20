@@ -38,6 +38,10 @@ The default deployment mode is operator-managed NVIDIA driver and container tool
 
 The repo must include test manifests and commands that verify node readiness, GPU Operator health, GPU discovery, and a GPU test pod.
 
+### REQ-GPU-008 Private HTTPS Ingress
+
+The GPU platform must provide a Traefik ingress path and cert-manager DNS-01 certificate automation for private `*.home.hope-leniency.com` GPU workloads. The default issuer name is `letsencrypt-prod`. DNS provider credentials must be created out of band as Kubernetes Secrets or encrypted with an approved secret mechanism; plaintext DNS API credentials must not be committed.
+
 ## Operational Requirements
 
 - Do not store real tokens, private keys, kubeconfigs, or host-specific secrets in Git.
@@ -49,6 +53,7 @@ The repo must include test manifests and commands that verify node readiness, GP
 - Run Ansible syntax checks before applying playbooks to real hosts.
 - Run manifest rendering checks before committing GitOps changes.
 - Document known blockers and incomplete work in `doc/platform/implement-status.md`.
+- Keep DNS API credentials for cert-manager outside plaintext Git.
 
 ## Out Of Scope
 

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Qwen3 TTS</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel composer">
+        <header>
+          <div>
+            <p class="eyebrow">Qwen3 TTS</p>
+            <h1>Realtime speech studio</h1>
+          </div>
+          <div class="status" id="serviceStatus">Checking</div>
+        </header>
+
+        <label for="textInput">Text</label>
+        <textarea id="textInput" rows="7">Hello, this is a realtime Qwen3 text to speech test.</textarea>
+
+        <div class="grid">
+          <label>
+            Model
+            <select id="modelSelect">
+              <option value="Qwen/Qwen3-TTS-12Hz-1.7B-Base">Qwen3-TTS 1.7B Base</option>
+            </select>
+          </label>
+          <label>
+            Task
+            <select id="taskType">
+              <option value="Base">Voice clone</option>
+            </select>
+          </label>
+          <label>
+            Language
+            <select id="language">
+              <option>Auto</option>
+              <option>English</option>
+              <option>Chinese</option>
+              <option>Japanese</option>
+              <option>Korean</option>
+              <option>German</option>
+              <option>French</option>
+              <option>Russian</option>
+              <option>Portuguese</option>
+              <option>Spanish</option>
+              <option>Italian</option>
+            </select>
+          </label>
+          <label>
+            Voice
+            <select id="voiceSelect">
+              <option value="">Model default</option>
+            </select>
+          </label>
+        </div>
+
+        <label for="instructions">Style or emotion instructions</label>
+        <input id="instructions" type="text" placeholder="Warm, clear, conversational">
+
+        <section class="clone">
+          <div>
+            <h2>Voice clone reference</h2>
+            <p>Use only non-private samples with consent.</p>
+          </div>
+          <label>
+            Reference audio
+            <input id="refAudio" type="file" accept="audio/*">
+          </label>
+          <label for="refText">Reference transcript</label>
+          <textarea id="refText" rows="3" placeholder="Exact words spoken in the reference audio"></textarea>
+        </section>
+
+        <div class="actions">
+          <button id="streamButton" type="button">Stream Speech</button>
+          <button id="stopButton" type="button" disabled>Stop</button>
+          <button id="refreshVoices" type="button">Refresh Voices</button>
+        </div>
+      </section>
+
+      <aside class="panel results">
+        <h2>Playback</h2>
+        <audio id="audioPlayer" controls></audio>
+        <dl class="metrics">
+          <div><dt>Status</dt><dd id="requestStatus">Idle</dd></div>
+          <div><dt>TTFB</dt><dd id="ttfb">-</dd></div>
+          <div><dt>Total</dt><dd id="totalLatency">-</dd></div>
+          <div><dt>Chunks</dt><dd id="chunks">0</dd></div>
+          <div><dt>Bytes</dt><dd id="bytes">0</dd></div>
+        </dl>
+        <pre id="log" aria-live="polite"></pre>
+      </aside>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

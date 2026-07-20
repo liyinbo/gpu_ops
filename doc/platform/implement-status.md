@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Date: 2026-07-02
+Date: 2026-07-03
 
-The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, and validates GPU scheduling with an NVIDIA runtime test pod. NVIDIA GPU Operator is the selected GPU resource management layer.
+The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, validates GPU scheduling with an NVIDIA runtime test pod, and provides a live Traefik plus cert-manager private HTTPS path for GPU workloads. NVIDIA GPU Operator is the selected GPU resource management layer.
 
 ## Completed
 
@@ -47,6 +47,11 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Installed Flux controllers with `playbooks/04-flux.yml` and applied `clusters/gpu-cluster`.
 - Added a Flux `GitRepository` and `Kustomization` for `https://github.com/liyinbo/gpu_ops.git` on branch `main`, path `./clusters/gpu-cluster`.
 - Reconciled NVIDIA GPU Operator `v26.3.3` through Flux.
+- Added Flux child Kustomizations for ordered platform/app reconciliation: Traefik, cert-manager, cert-manager issuers, NVIDIA GPU Operator, and apps.
+- Added Traefik HelmRelease with hostPort 80/443 for the single-node GPU cluster.
+- Added cert-manager HelmRelease with CRD installation and the AliDNS DNS-01 webhook.
+- Added `letsencrypt-prod` ClusterIssuer manifest using the AliDNS webhook pattern from `storage_server_ops`.
+- Added `doc/platform/runbooks/private-https.md` for Traefik, cert-manager, DNS secret, and route validation operations.
 
 ## Verified
 
@@ -81,10 +86,18 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - GPU Operator pods are healthy; node allocatable includes `nvidia.com/gpu: 1`.
 - NVIDIA runtime test pod completed and logged `NVIDIA-SMI 580.126.20`, `Driver Version: 580.126.20`, and `NVIDIA GeForce RTX 4090`.
 - Deleted the completed `default/nvidia-runtime-test` pod after validation; `scripts/check-gpu-runtime-test.sh` recreates it when needed.
+- Live Traefik reconciliation: pass after correcting the chart values to use high container ports with hostPort 80/443. Pod `traefik-system/traefik` is running and IngressClass `traefik` exists.
+- Live cert-manager reconciliation: pass. `cert-manager`, `cert-manager-cainjector`, `cert-manager-webhook`, and `alidns-webhook` pods are running.
+- Live `letsencrypt-prod` issuer creation: pass. `ClusterIssuer/letsencrypt-prod` reports `Ready=True`.
+- Live TTS certificate issuance: pass. `tts/tts-home-hope-leniency-com` reports `Ready=True` for `tts.home.hope-leniency.com`, with a Let's Encrypt `YR1` certificate valid from 2026-07-02 to 2026-09-30.
+- Private HTTPS route validation through the GPU node: pass with `curl --resolve tts.home.hope-leniency.com:443:192.168.8.130 https://tts.home.hope-leniency.com/`.
 
 ## Open Items
 
-- Optional: configure a persistent GitRepository/Kustomization source after the remote and deploy key are known.
+- `cert-manager/alidns-secrets` was copied live from the existing storage cluster Secret through the Kubernetes API without printing or committing secret data; workload certificate issuance now works.
+- Confirm whether the GPU cluster should continue using Traefik hostPort routing on `192.168.8.130` or move to a dedicated MetalLB ingress VIP.
+- Update the external DNS host override for `tts.home.hope-leniency.com`; it currently resolves to `192.168.8.20`, while the validated GPU endpoint is `192.168.8.130`.
+- The separate `network-ops` DNS source of truth referenced by `storage_server_ops` is not present under `/Users/limbo/repo`; updating the router DNS override requires that repo or another router/DNS control path.
 
 ## Risks
 

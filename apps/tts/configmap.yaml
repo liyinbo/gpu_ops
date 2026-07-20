@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tts-runtime-config
+  namespace: tts
+  labels:
+    app.kubernetes.io/name: qwen3-tts
+    app.kubernetes.io/part-of: tts
+data:
+  model: Qwen/Qwen3-TTS-12Hz-1.7B-Base
+  taskType: Base
+  language: Auto
+  apiBasePath: /v1
+  hostname: tts.home.hope-leniency.com
+  retentionPolicy: Reference audio is accepted per request or runtime voice upload only; do not commit samples, embeddings, or generated private audio to Git.

@@ -1,17 +1,50 @@
 # TTS Deploy Runbook
 
-Deployment steps will be filled in when the TTS manifests are implemented.
+This runbook deploys the initial Qwen3-TTS service through the repo GitOps entry point.
 
-Expected inputs:
+## Inputs
 
-- model artifact source
-- model cache or PVC path
-- serving image
-- API secret references
-- GPU resource request
-- frontend web UI image or static asset serving path
-- private hostname, initially `tts.home.hope-leniency.com`
-- Traefik ingress class and cert-manager issuer availability
+- Model artifact source: `Qwen/Qwen3-TTS-12Hz-1.7B-Base`
+- Serving image: `vllm/vllm-omni:v0.22.0`
+- Model cache PVC: `tts/qwen3-tts-model-cache`, mounted at `/models`
+- API GPU request/limit: `nvidia.com/gpu: 1`
+- Web UI: nginx serving ConfigMap assets from `apps/tts/web/`
+- Private hostname: `tts.home.hope-leniency.com`
+- Ingress class: `traefik`; current single-node implementation uses Traefik hostPort 80/443 on `192.168.8.130`
+- Certificate issuer: cert-manager ClusterIssuer `letsencrypt-prod`
+- DNS/exposure contract: `apps/exposure-contract.yaml`
+
+## Preflight
+
+```bash
+scripts/run-static-checks.sh
+KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/check-gpu-operator.sh
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml get ingressclass
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml get clusterissuer letsencrypt-prod
+```
+
+If the `ClusterIssuer` is missing, install or reconcile cert-manager and the DNS-01 issuer before applying the Certificate live. If certificate challenges report `alidns-secrets` missing, create `cert-manager/alidns-secrets` out of band; do not commit DNS API credentials.
+
+## Deploy
+
+Flux reconciles `clusters/gpu-cluster`, which now includes `../../apps`.
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml apply -k clusters/gpu-cluster
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts rollout status deployment/qwen3-tts-api --timeout=30m
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts rollout status deployment/tts-web --timeout=5m
+```
+
+For Flux-managed reconciliation after the commit is pushed:
+
+```bash
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile source git gpu-ops -n flux-system
+flux --kubeconfig kubeconfig-gpu-cluster.yaml reconcile kustomization gpu-cluster -n flux-system --with-source
+```
+
+## DNS
+
+Coordinate the DNS host override in network-ops so `tts.home.hope-leniency.com` points at the selected GPU cluster Traefik endpoint. The current live route uses `192.168.8.130` until a dedicated ingress VIP is assigned.
 
 ## Private HTTPS Pattern
 

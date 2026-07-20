@@ -1,16 +1,53 @@
 # TTS Troubleshooting Runbook
 
-Troubleshooting steps will be filled in when the TTS service is implemented.
+## Pod and GPU
 
-Expected areas:
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts get pods -o wide
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts describe pod -l app.kubernetes.io/name=qwen3-tts-api
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml get nodes -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.allocatable.nvidia\.com/gpu}{"\n"}{end}'
+```
 
-- model download or cache failures
-- GPU scheduling failures
-- vLLM-Omni startup failures
-- streaming API failures
-- frontend web UI failures
-- private hostname, certificate, or Traefik routing failures
-- voice clone input validation failures
+If the pod is pending, confirm the GPU Operator is ready and the node reports allocatable `nvidia.com/gpu`.
+
+## Runtime Startup
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts logs deploy/qwen3-tts-api -f
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts get pvc qwen3-tts-model-cache
+```
+
+Model download failures usually show in the vLLM-Omni logs. Do not paste private tokens into manifests; use a Kubernetes Secret if a model source later requires authentication.
+
+Image pull failures show before vLLM starts:
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts describe pod -l app.kubernetes.io/name=qwen3-tts-api
+```
+
+If the event is a Docker Hub timeout or EOF, retry the pod after registry access recovers:
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts delete pod -l app.kubernetes.io/name=qwen3-tts-api
+```
+
+## API
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts port-forward svc/qwen3-tts-api 18091:80
+curl -fsS http://127.0.0.1:18091/health
+```
+
+Run `scripts/tts/check-streaming.sh` and inspect `/tmp/gpu-ops-tts-stream.pcm` if streaming fails.
+
+## Web UI
+
+```bash
+kubectl --kubeconfig kubeconfig-gpu-cluster.yaml -n tts port-forward svc/tts-web 18080:80
+open http://127.0.0.1:18080/
+```
+
+The browser UI calls same-origin `/health`, `/v1/audio/voices`, and `/v1/audio/speech`. If direct web UI works but the hostname fails, focus on Ingress, TLS, or DNS.
 
 ## Private HTTPS Troubleshooting
 

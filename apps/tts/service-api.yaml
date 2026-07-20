@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen3-tts-api
+  namespace: tts
+  labels:
+    app.kubernetes.io/name: qwen3-tts-api
+    app.kubernetes.io/part-of: tts
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: qwen3-tts-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

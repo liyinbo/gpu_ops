@@ -33,6 +33,7 @@
 - Add Flux-compatible cluster entry point.
 - Add NVIDIA GPU Operator manifests.
 - Configure GPU Operator values for operator-managed driver, toolkit, device plugin, GPU feature discovery, DCGM exporter, MIG strategy, and k3s containerd integration.
+- Add Traefik ingress, cert-manager, and the `letsencrypt-prod` DNS-01 issuer for private HTTPS GPU workloads.
 - Add future infrastructure add-ons as requirements are clarified.
 
 ## Phase 6: Validation

@@ -1,0 +1,54 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tts-ingress
+  namespace: tts
+  labels:
+    app.kubernetes.io/name: tts
+    app.kubernetes.io/part-of: tts
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - tts.home.hope-leniency.com
+      secretName: tts-home-hope-leniency-com-tls
+  rules:
+    - host: tts.home.hope-leniency.com
+      http:
+        paths:
+          - path: /v1/models
+            pathType: Exact
+            backend:
+              service:
+                name: qwen3-tts-api
+                port:
+                  number: 80
+          - path: /v1/audio/speech
+            pathType: Exact
+            backend:
+              service:
+                name: qwen3-tts-api
+                port:
+                  number: 80
+          - path: /v1/audio/voices
+            pathType: Exact
+            backend:
+              service:
+                name: qwen3-tts-api
+                port:
+                  number: 80
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: qwen3-tts-api
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tts-web
+                port:
+                  number: 80

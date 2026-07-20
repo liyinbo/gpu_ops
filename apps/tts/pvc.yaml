@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qwen3-tts-model-cache
+  namespace: tts
+  labels:
+    app.kubernetes.io/name: qwen3-tts
+    app.kubernetes.io/part-of: tts
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi
