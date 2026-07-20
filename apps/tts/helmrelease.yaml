@@ -7,6 +7,7 @@ metadata:
 spec:
   suspend: false
   interval: 30m
+  timeout: 30m
   chartRef:
     kind: OCIRepository
     name: tts-service-chart
