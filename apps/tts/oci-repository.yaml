@@ -8,4 +8,4 @@ spec:
   interval: 1h
   url: oci://ghcr.io/liyinbo/charts/tts-service
   ref:
-    digest: sha256:394ea5dc51017be4dbbf6ee5d3f194bb27217d6d4e20528ecb98df8de4d38908
+    digest: sha256:c74038372e1c8b9a206852fe5b1845b160b7fb92270693bc7eb0a72ff76da5d9
