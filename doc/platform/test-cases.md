@@ -114,7 +114,17 @@ Command:
 uv run ansible-playbook -i inventory/gpu-cluster/hosts.yml playbooks/02-gpu-runtime.yml
 ```
 
-Expected result: GPU host prerequisites complete without taking over responsibilities assigned to NVIDIA GPU Operator. `nvidia-smi` output is reported when host drivers are already available.
+Expected result: GPU host prerequisites complete without taking over responsibilities assigned to NVIDIA GPU Operator. `/etc/modprobe.d/blacklist-nouveau.conf` prevents `nouveau` from loading and the installed initramfs images are rebuilt when that file changes. The play reports when a reboot is required because `nouveau` is already loaded. `nvidia-smi` output is reported when host drivers are already available.
+
+After the required reboot, verify the module ownership:
+
+```bash
+uv run ansible -i inventory/gpu-cluster/hosts.yml gpu_nodes -b \
+  -m shell -a 'lsmod | grep -E "nvidia|nouveau"' \
+  --vault-password-file=.vault_pass
+```
+
+Expected result: NVIDIA modules are listed and `nouveau` is absent.
 
 ### TC-GPU-012 k3s Playbook
 

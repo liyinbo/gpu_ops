@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Date: 2026-07-20
+Date: 2026-08-02
 
 The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, validates GPU scheduling with an NVIDIA runtime test pod, and provides a live Traefik plus cert-manager private HTTPS path for GPU workloads. NVIDIA GPU Operator is the selected GPU resource management layer.
 
@@ -52,6 +52,11 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Added cert-manager HelmRelease with CRD installation and the AliDNS DNS-01 webhook.
 - Added `letsencrypt-prod` ClusterIssuer manifest using the AliDNS webhook pattern from `storage_server_ops`.
 - Added `doc/platform/runbooks/private-https.md` for Traefik, cert-manager, DNS secret, and route validation operations.
+- Added idempotent GPU host preparation that blacklists `nouveau`, disables its
+  modesetting, rebuilds installed initramfs images when the policy changes, and
+  reports when a reboot is still required.
+- Added `doc/platform/runbooks/gpu-driver-recovery.md` for recovery from a
+  kernel upgrade and GPU Operator driver transition failure.
 
 ## Verified
 
@@ -73,6 +78,19 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - `KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/check-k3s.sh`
 - `KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/check-gpu-operator.sh`
 - `KUBECONFIG_PATH=kubeconfig-gpu-cluster.yaml scripts/check-gpu-runtime-test.sh`
+- 2026-08-02 recovery validation: the node booted
+  `6.17.0-35-generic`, `nouveau` remained absent, NVIDIA modules loaded,
+  `nvidia-smi` reported driver `580.126.20` and the RTX 4090, k3s returned
+  active, ClusterPolicy returned `ready`, and the node advertised
+  `nvidia.com/gpu: 1`.
+- Post-recovery `scripts/check-k3s.sh` and `scripts/check-gpu-operator.sh`:
+  pass.
+- The recovery boot ID remained unchanged for more than five minutes (more
+  than two prior reboot intervals), all GPU Operator pods reached healthy
+  states, and the replacement Qwen TTS API pod reached `Ready=1/1` while using
+  the recovered GPU.
+- Post-change `playbooks/site.yml --syntax-check`, idempotent live
+  `playbooks/02-gpu-runtime.yml`, and `scripts/run-static-checks.sh`: pass.
 - `uv run ansible-inventory -i inventory/gpu-cluster/hosts.yml --graph`
 - Local `inventory/gpu-cluster/group_vars/gpu_cluster/vault.yml` is present and reports as `Ansible Vault, version 1.1, encryption AES256`; it remains ignored by Git.
 - Updated `ansible.cfg` from the removed `community.general.yaml` callback to `ansible.builtin.default` with YAML result formatting.
@@ -92,13 +110,27 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Live TTS certificate issuance: pass. `tts/tts-home-hope-leniency-com` reports `Ready=True` for `tts.home.hope-leniency.com`, with a Let's Encrypt `YR1` certificate valid from 2026-07-02 to 2026-09-30.
 - Private HTTPS route validation through the GPU node: pass with `curl --resolve tts.home.hope-leniency.com:443:192.168.8.130 https://tts.home.hope-leniency.com/`.
 - TTS Helm migration reconciliation exposed an existing Flux ownership transition for NVIDIA resources: parent pruning removed the old `gpu-operator` namespace before the child Kustomization could adopt it, and k3s restarted after containerd exited on SIGHUP. The namespace and exact committed GPU Operator release were reconciled without forcing finalizers; GPU Operator returned ready, the node again advertised `nvidia.com/gpu: 1`, and all Flux Kustomizations reached commit `d0778eb` ready before TTS cutover continued.
+- On 2026-08-02, recovered `limbo-gpu-001` from a hard-reset loop after an
+  unattended kernel transition from `6.17.0-35-generic` to
+  `7.0.0-28-generic`. The new boot had no NVIDIA kernel module, `nouveau`
+  owned the RTX 4090 framebuffer, and the GPU Operator driver manager failed
+  repeatedly with `failed to unload nouveau driver: device or resource busy`.
+  k3s was stopped to contain the loop, `nouveau` was disabled in initramfs,
+  and the node was booted into the known-good `6.17.0-35-generic` kernel for
+  driver recovery and validation.
 
 ## Open Items
 
 - `cert-manager/alidns-secrets` was copied live from the existing storage cluster Secret through the Kubernetes API without printing or committing secret data; workload certificate issuance now works.
 - Confirm whether the GPU cluster should continue using Traefik hostPort routing on `192.168.8.130` or move to a dedicated MetalLB ingress VIP.
+- Validate `7.0.0-28-generic` with the operator-managed NVIDIA driver during a
+  maintenance window before removing the temporary persistent GRUB selection
+  of `6.17.0-35-generic`.
 
 ## Risks
 
 - GPU Operator installed and manages the NVIDIA driver/runtime stack. Do not add host-side NVIDIA driver or standalone device-plugin management unless requirements change.
+- Kernel upgrades must not be activated until the target kernel, NVIDIA driver,
+  and `nouveau` policy have been validated together. The live node currently
+  selects `6.17.0-35-generic` persistently as an incident-recovery safeguard.
 - `kubeconfig-gpu-cluster.yaml`, `.vault_pass`, and the encrypted local vault file remain local operational artifacts and must not be committed.

@@ -1,4 +1,43 @@
 ---
+- name: Prevent nouveau from claiming NVIDIA GPUs on boot
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/blacklist-nouveau.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      blacklist nouveau
+      options nouveau modeset=0
+  register: nouveau_blacklist
+  when: gpu_runtime_disable_nouveau | bool
+
+- name: Rebuild initramfs after changing the nouveau policy
+  ansible.builtin.command: update-initramfs -u -k all
+  when:
+    - gpu_runtime_disable_nouveau | bool
+    - nouveau_blacklist.changed
+
+- name: Check whether nouveau is currently loaded
+  ansible.builtin.shell: |
+    set -eu
+    if grep -q '^nouveau ' /proc/modules; then
+      echo loaded
+    else
+      echo absent
+    fi
+  register: nouveau_module_state
+  changed_when: false
+  when: gpu_runtime_disable_nouveau | bool
+
+- name: Report reboot requirement for an active nouveau module
+  ansible.builtin.debug:
+    msg: >-
+      nouveau is currently loaded. Reboot the node before allowing NVIDIA GPU
+      Operator to install or upgrade its managed driver.
+  when:
+    - gpu_runtime_disable_nouveau | bool
+    - nouveau_module_state.stdout == "loaded"
+
 - name: Install NVIDIA Container Toolkit prerequisites
   ansible.builtin.apt:
     name:
@@ -45,4 +84,3 @@
 - name: Show GPU discovery result
   ansible.builtin.debug:
     msg: "{{ nvidia_smi_result.stdout_lines | default(['nvidia-smi not available']) }}"
-

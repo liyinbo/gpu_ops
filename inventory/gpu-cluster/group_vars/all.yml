@@ -31,4 +31,5 @@ common_packages:
   - vim
 
 gpu_runtime_install_nvidia_toolkit: false
+gpu_runtime_disable_nouveau: true
 gpu_runtime_containerd_config_path: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
