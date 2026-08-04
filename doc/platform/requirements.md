@@ -22,6 +22,10 @@ The repo must provide an idempotent Ansible path to install and start k3s agent 
 
 GPU worker nodes must be prepared for NVIDIA GPU Operator. Host preparation must stay minimal and must not duplicate GPU Operator responsibilities unless the selected operator deployment mode explicitly requires host-side prerequisites.
 
+When GPU Operator manages the NVIDIA driver, host preparation must prevent the
+`nouveau` module from claiming NVIDIA devices during boot and must rebuild the
+affected initramfs images when that policy changes.
+
 ### REQ-GPU-005 GitOps Entry Point
 
 The repo must include a Flux-compatible cluster entry point under `clusters/gpu-cluster`.

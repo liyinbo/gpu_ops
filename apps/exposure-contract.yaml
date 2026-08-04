@@ -11,3 +11,14 @@ apps:
     port: 443
     phase: planned
     notes: Qwen3 TTS web UI and API on the GPU cluster. DNS should map this hostname to the GPU cluster Traefik endpoint unless a different ingress VIP is assigned.
+
+  - name: meta-harness-dev
+    hostname: meta-harness-dev.home.hope-leniency.com
+    ingressIP: 192.168.8.130
+    namespace: meta-harness
+    ingressResource: meta-harness
+    certificateSecret: meta-harness-dev-home-hope-leniency-com-tls
+    certificateNamespace: meta-harness
+    port: 443
+    phase: planned
+    notes: Development instance of the agent control plane. Its execution site is an in-cluster node agent owning workspace storage on its own volume; the production instance lives on the storage cluster.
