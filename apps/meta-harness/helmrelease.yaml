@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: meta-harness
-      version: "0.2.1"
+      version: "0.2.2"
       sourceRef:
         kind: HelmRepository
         name: meta-harness
@@ -17,7 +17,7 @@ spec:
   values:
     image:
       repository: forgejo.home.hope-leniency.com/limbo/meta-harness
-      tag: "1875133"
+      tag: "d6ed2a2"
     imagePullSecrets:
       - name: forgejo-registry
 
