@@ -5,7 +5,7 @@
 - [x] Define a single-node persistent Vault deployment with internal TLS.
 - [x] Add retained local storage and default-deny networking.
 - [x] Add guarded initialization and health-check helpers.
-- [ ] Reconcile the release, initialize and unseal Vault, and record live evidence.
+- [x] Reconcile the release, initialize and unseal Vault, and record live evidence.
 
 ## Phase 2: Meta Harness Integration
 

@@ -31,7 +31,7 @@ mv "${output_path}.partial" "$output_path"
 
 unseal_key=$(jq -er '.unseal_keys_b64[0]' "$output_path")
 printf '%s\n' "$unseal_key" | kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
-  vault operator unseal >/dev/null
+  /bin/sh -ec 'IFS= read -r unseal_key; vault operator unseal "$unseal_key" >/dev/null; unset unseal_key'
 unset unseal_key
 
 echo "Vault initialized and unsealed; initialization material written mode 0600 to $output_path"

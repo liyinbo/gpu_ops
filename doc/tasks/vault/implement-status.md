@@ -4,7 +4,7 @@
 
 Date: 2026-08-10
 
-Repository implementation is ready for validation. It defines a single standalone Vault pod,
+The single-node development Vault is deployed, initialized, unsealed, and healthy. It uses
 persistent retained local storage, internal private-CA TLS, no external exposure, and
 default-deny networking permitting API access only from `meta-harness`.
 
@@ -19,7 +19,17 @@ default-deny networking permitting API access only from `meta-harness`.
 
 ## Validation
 
-- Live reconciliation and initialization are pending.
+- Git/Flux revision `3c887ae` reconciled successfully on 2026-08-10.
+- HashiCorp HelmRepository: `Ready=True`.
+- Vault HelmRelease: `Ready=True`; install succeeded with chart `0.34.0`.
+- `vault-internal-ca` and `vault-server-tls` Certificates: `Ready=True`.
+- `vault-local` StorageClass: `Retain` and `WaitForFirstConsumer`.
+- `data-vault-0`: Bound with 5 GiB capacity on `vault-local`.
+- Vault Services: ClusterIP only; no Ingress is configured.
+- Pre-initialization gate: `initialized=false`, `sealed=true`.
+- Post-initialization health: `initialized=true`, `sealed=false`.
+- Initialization material was written outside the repository with mode 0600 and its contents
+  were not printed.
 
 ## Risks
 
