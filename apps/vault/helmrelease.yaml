@@ -1,0 +1,159 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  interval: 30m
+  timeout: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      strategy: rollback
+  chart:
+    spec:
+      chart: vault
+      version: "0.34.0"
+      sourceRef:
+        kind: HelmRepository
+        name: hashicorp
+        namespace: vault
+  values:
+    global:
+      enabled: true
+      tlsDisable: false
+
+    injector:
+      enabled: false
+
+    csi:
+      enabled: false
+
+    server:
+      image:
+        repository: hashicorp/vault
+        tag: "2.0.3"
+        pullPolicy: IfNotPresent
+      logLevel: info
+      logFormat: json
+      updateStrategyType: OnDelete
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: "1"
+          memory: 1Gi
+      ingress:
+        enabled: false
+      service:
+        enabled: true
+        type: ClusterIP
+        active:
+          enabled: false
+        standby:
+          enabled: false
+        instanceSelector:
+          enabled: false
+      authDelegator:
+        enabled: true
+      serviceAccount:
+        create: true
+        name: vault
+        createSecret: false
+      statefulSet:
+        securityContext:
+          pod:
+            runAsNonRoot: true
+            runAsUser: 100
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          container:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+      extraEnvironmentVars:
+        VAULT_CACERT: /vault/userconfig/vault-server-tls/ca.crt
+        VAULT_TLS_SERVER_NAME: vault.vault.svc
+      volumes:
+        - name: vault-server-tls
+          secret:
+            secretName: vault-server-tls
+            defaultMode: 0440
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
+      volumeMounts:
+        - name: vault-server-tls
+          mountPath: /vault/userconfig/vault-server-tls
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      dataStorage:
+        enabled: true
+        size: 5Gi
+        mountPath: /vault/data
+        storageClass: vault-local
+        accessMode: ReadWriteOnce
+        annotations:
+          helm.sh/resource-policy: keep
+      auditStorage:
+        enabled: false
+      persistentVolumeClaimRetentionPolicy:
+        whenDeleted: Retain
+        whenScaled: Retain
+      nodeSelector:
+        kubernetes.io/hostname: limbo-gpu-001
+      readinessProbe:
+        enabled: true
+        path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+        failureThreshold: 3
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        timeoutSeconds: 5
+      livenessProbe:
+        enabled: true
+        execCommand:
+          - /bin/sh
+          - -ec
+          - VAULT_ADDR=https://127.0.0.1:8200 VAULT_TLS_SERVER_NAME=vault.vault.svc vault status >/dev/null || test "$?" -eq 2
+        failureThreshold: 3
+        initialDelaySeconds: 60
+        periodSeconds: 15
+        timeoutSeconds: 5
+      standalone:
+        enabled: true
+        config: |
+          ui = false
+          disable_mlock = true
+          default_lease_ttl = "1h"
+          max_lease_ttl = "24h"
+
+          listener "tcp" {
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            tls_disable = 0
+            tls_cert_file = "/vault/userconfig/vault-server-tls/tls.crt"
+            tls_key_file = "/vault/userconfig/vault-server-tls/tls.key"
+            tls_client_ca_file = "/vault/userconfig/vault-server-tls/ca.crt"
+          }
+
+          storage "file" {
+            path = "/vault/data"
+          }
+      dev:
+        enabled: false
+      ha:
+        enabled: false
+
+    ui:
+      enabled: false

@@ -19,12 +19,15 @@ kubectl kustomize infrastructure/cert-manager >/tmp/gpu-ops-cert-manager-render.
 kubectl kustomize infrastructure/cert-manager-issuers >/tmp/gpu-ops-cert-issuers-render.yaml
 kubectl kustomize apps/meta-harness >/tmp/gpu-ops-meta-harness-render.yaml
 kubectl kustomize apps/tts >/tmp/gpu-ops-tts-render.yaml
+kubectl kustomize apps/vault >/tmp/gpu-ops-vault-render.yaml
 
 sh -n scripts/check-gpu-operator.sh
 sh -n scripts/check-gpu-runtime-test.sh
 sh -n scripts/check-k3s.sh
 sh -n scripts/edit-vault.sh
 sh -n apps/meta-harness/bootstrap-secrets.sh
+sh -n scripts/vault/check-health.sh
+sh -n scripts/vault/initialize.sh
 sh -n scripts/tts/render.sh
 sh -n scripts/tts/check-scheduling.sh
 sh -n scripts/tts/check-api-startup.sh

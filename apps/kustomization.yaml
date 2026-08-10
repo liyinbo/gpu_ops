@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - tts
   - meta-harness
+  - vault
