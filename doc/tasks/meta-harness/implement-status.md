@@ -4,10 +4,10 @@
 
 Date: 2026-08-10
 
-The development instance is healthy on Meta Harness chart `0.3.0` and image `a1e8cf7`. The
-matching Authentik provider and development callback are live, and the GPU cluster now has the
-uncommitted OIDC client secret. The release manifest is ready to enable shared-provider OIDC
-while preserving local profile authentication.
+The development instance is healthy on Meta Harness chart `0.3.0` and image `a1e8cf7` with
+shared-provider OIDC enabled. The matching Authentik provider and development callback are
+live, the GPU cluster has the uncommitted OIDC client secret, and local profile authentication
+remains enabled as the recovery path.
 
 ## Completed
 
@@ -24,6 +24,7 @@ while preserving local profile authentication.
 - Verified the shared Authentik provider accepts the development callback and copied its
   matching client secret into the GPU cluster as `meta-harness/meta-harness-oidc` without
   committing or printing the value.
+- Committed and reconciled the OIDC configuration at Git revision `8ad687d`.
 
 ## Validation
 
@@ -34,11 +35,22 @@ while preserving local profile authentication.
 - `scripts/run-static-checks.sh`: pass on 2026-08-05.
 - Pre-OIDC live state on 2026-08-10: HelmRelease ready on chart `0.3.0`, seven application
   pods running, and the application URL returned HTTP 200.
+- `scripts/run-static-checks.sh`: pass on 2026-08-10 with the OIDC configuration rendered.
+- Flux `gpu-ops` source and `gpu-apps` Kustomization: `Ready=True` at
+  `main@sha1:8ad687d1` on 2026-08-10.
+- Meta Harness HelmRelease: `Ready=True`; Helm upgrade succeeded as revision 4 with chart
+  `0.3.0`.
+- All seven Meta Harness pods: `Running`, ready, and zero restarts after the OIDC rollout.
+- `https://meta-harness-dev.home.hope-leniency.com/app/`: HTTP 200.
+- `/auth/oidc/login`: HTTP 307 to the shared Authentik authorization endpoint with the exact
+  development callback; API logs show successful OIDC discovery with HTTP 200.
+- `/auth/local`: HTTP 200, confirming the local-profile recovery route remains functional.
 
 ## Open Items
 
-- Reconcile Flux and verify OIDC login, local-profile recovery, and the previously failing
-  approved `git.commit` workflow.
+- Complete one interactive Authentik login/callback with an operator identity; automated
+  validation confirmed discovery and the authorization redirect but did not submit credentials.
+- Verify the previously failing approved `git.commit` workflow.
 
 ## Risks
 

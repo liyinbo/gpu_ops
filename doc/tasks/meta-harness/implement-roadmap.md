@@ -22,10 +22,13 @@
 - [x] Extend secret bootstrap to create `meta-harness-oidc` from `OIDC_CLIENT_SECRET`.
 - [x] Verify the matching Authentik provider and development callback are deployed from
   `storage_server_ops`, and bootstrap the client secret in the GPU cluster.
-- [ ] Reconcile the release and verify OIDC sign-in and local-profile recovery.
+- [x] Reconcile the release and verify OIDC discovery/login routing and local-profile
+  recovery.
+- [ ] Complete one interactive Authentik login and callback with an operator identity.
 
 ## Phase 4: Validation and Operations
 
 - [x] Add Kustomize rendering and shell syntax checks to the repository static gate.
-- [ ] Validate Flux readiness, HTTPS, PostgreSQL persistence, node connectivity, and the full
-  approved Git workflow on the live cluster.
+- [x] Validate Flux readiness, HTTPS, PostgreSQL readiness, node readiness, and authentication
+  routing on the live cluster.
+- [ ] Re-run the full approved Git workflow on the live cluster.
