@@ -18,8 +18,16 @@ terminal and git operation over that node's channel rather than reading a tree a
 ## Bootstrap
 
 ```sh
-KUBECONFIG=./kubeconfig-gpu-cluster.yaml apps/meta-harness/bootstrap-secrets.sh
+OIDC_CLIENT_SECRET=<matching-shared-provider-secret> \
+  KUBECONFIG=./kubeconfig-gpu-cluster.yaml \
+  apps/meta-harness/bootstrap-secrets.sh
 ```
+
+The development and production instances share the Authentik provider managed by
+`storage_server_ops`, where the development callback is registered. Confirm that provider is
+available before reconciling this release. If `OIDC_CLIENT_SECRET` is omitted, the script
+leaves the OIDC secret unchanged or absent and reports that local profile sign-in remains
+available.
 
 Then let Flux reconcile, or `flux reconcile kustomization gpu-apps --with-source`.
 

@@ -26,6 +26,18 @@ spec:
     replicaCount:
       api: 1
 
+    auth:
+      # Shared Authentik provider with the production instance. Local profile auth stays
+      # enabled as the recovery path if OIDC is unavailable.
+      localAuthEnabled: true
+      oidc:
+        enabled: true
+        issuerUrl: https://auth.home.hope-leniency.com/application/o/meta-harness/
+        clientId: zCH850HtEcwGgsdScMk06n3KBHFQcS6VFErWMTdQ
+        redirectUri: https://meta-harness-dev.home.hope-leniency.com/auth/oidc/callback
+        existingSecret: meta-harness-oidc
+        clientSecretKey: OIDC_CLIENT_SECRET
+
     externalDatabase:
       existingSecret: meta-harness
       urlKey: DATABASE_URL

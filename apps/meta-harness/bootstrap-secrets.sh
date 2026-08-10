@@ -55,4 +55,15 @@ kubectl create secret docker-registry forgejo-registry -n "$NAMESPACE" \
   --docker-username="$FORGEJO_USER" \
   --docker-password="$TOKEN" | kubectl apply -f -
 
+# The OIDC client secret must match the Authentik blueprint in storage_server_ops
+# (apps/authentik/meta-harness-blueprint-secret.yaml). Both instances share one provider.
+if [ -n "${OIDC_CLIENT_SECRET:-}" ]; then
+  kubectl create secret generic meta-harness-oidc -n "$NAMESPACE" \
+    --save-config --dry-run=client -o yaml \
+    --from-literal=OIDC_CLIENT_SECRET="$OIDC_CLIENT_SECRET" | kubectl apply -f -
+  echo "oidc client secret in place"
+else
+  echo "OIDC_CLIENT_SECRET not set - skipping; sign-in will use local profiles" >&2
+fi
+
 echo "forgejo credentials in place"
