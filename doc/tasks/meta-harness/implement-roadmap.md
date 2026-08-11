@@ -12,8 +12,8 @@
 - [x] Pin chart `0.3.1`, which includes the writable `/tmp` scratch volumes introduced in
   `0.2.3` while preserving
   read-only root filesystems.
-- [ ] Re-run the approved patch, stage, and `git.commit` workflow against the reconciled
-  `0.3.0` release.
+- [x] Re-run the approved patch, stage, and `git.commit` workflow against the reconciled
+  `0.3.1` release.
 
 ## Phase 3: OIDC
 
@@ -31,24 +31,22 @@
 - [x] Add Kustomize rendering and shell syntax checks to the repository static gate.
 - [x] Validate Flux readiness, HTTPS, PostgreSQL readiness, node readiness, and authentication
   routing on the live cluster.
-- [ ] Re-run the full approved Git workflow on the live cluster.
+- [x] Re-run the full approved Git workflow on the live cluster.
 
 ## Phase 5: Development Vault Integration
 
 - [x] Deploy a separate, internal-only development Vault in the GPU cluster.
 - [x] Add a separately managed retained persistent claim for Vault audit storage and mount it
   without modifying the StatefulSet claim templates.
-- [ ] Enable the file audit device after the `OnDelete` restart and operator unseal.
-- [ ] Enable a `meta-harness-dev/` KV v2 mount and the same-cluster `kubernetes/` auth mount.
+- [x] Enable the file audit device after the `OnDelete` restart and operator unseal.
+- [x] Enable a `meta-harness-dev/` KV v2 mount and the same-cluster `kubernetes/` auth mount.
 - [x] Commit an idempotent bootstrap and exact read-only policy source for
   `meta-harness-dev/data/tests/credential-resolve`, to be applied and bound
   to `meta-harness/meta-harness-workspace-broker` with audience `vault`.
 - [x] Copy only `ca.crt` into an out-of-band `meta-harness-vault-ca` Secret.
 - [x] Configure Meta Harness chart `0.3.1` while keeping image `a1e8cf7`.
 - [x] Configure role-based Vault access without a static token or push credential.
-- [ ] Preload and resolve a synthetic test record, verify Kubernetes login in the audit log,
+- [x] Preload and resolve a synthetic test record, verify Kubernetes login in the audit log,
   and prove wrong target, wrong scope, unknown reference, and sibling-path access fail closed.
-- [ ] Remove the obsolete cross-cluster production-Vault handoff after preserving its security
+- [x] Remove the obsolete cross-cluster production-Vault handoff after preserving its security
   decision in the task records.
-
-Implementation handoff: `doc/tasks/meta-harness/vault-integration-goal.md`.

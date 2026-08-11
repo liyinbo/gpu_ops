@@ -110,3 +110,31 @@ node connectivity, and the approved `git.commit` flow.
 
 Expected result: existing behavior remains healthy. Git push remains disabled because no push
 credential reference is configured.
+
+## Evidence — 2026-08-11
+
+- TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
+  and `scripts/run-static-checks.sh` passed; the render pins chart `0.3.1`, image `a1e8cf7`,
+  role identity, exact allowlist, and no static or push credential.
+- TC-MH-010: Flux source and every Kustomization were `Ready=True` at
+  `main@sha1:dfb01ea5`; Helm revision 5 was ready on chart `0.3.1`.
+- TC-MH-020: local-profile authentication returned HTTP 200; OIDC returned HTTP 307 to the
+  shared Authentik provider with the exact development callback. Interactive operator OIDC
+  submission remains separately open.
+- TC-MH-030: a throwaway node workspace staged a patch, applied it after approval, completed
+  approved `git.commit`, and emitted `candidate.committed` without a temporary-directory error.
+- TC-MH-040: the application returned HTTPS 200 and node `cluster` was connected with the
+  expected read, patch, and commit tools.
+- TC-MH-100: the live broker uses its dedicated ServiceAccount, projected audience `vault`
+  token, CA-only Secret, exact role and reference allowlist, and no static or push token.
+- TC-MH-110: a live broker login received the exact policy and TTL at most 20 minutes; the
+  retained audit log recorded a successful `auth/kubernetes/login` with the exact role,
+  ServiceAccount, and namespace metadata.
+- TC-MH-120: the exact KV path returned HTTP 200; sibling read and mount listing returned
+  HTTP 403.
+- TC-MH-130: exact resolution succeeded while wrong host, repository, scope, unknown
+  reference, and sibling reference each returned HTTP 403 without credential fields. No test
+  secret was printed.
+- TC-MH-140: all seven pods were running, ready, and at zero restarts; HTTPS, OIDC routing,
+  local authentication, node connectivity, and approved commit remained healthy. Git push
+  remained disabled.

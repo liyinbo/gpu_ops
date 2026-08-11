@@ -4,18 +4,18 @@
 
 Date: 2026-08-11
 
-The development instance remains healthy on Meta Harness chart `0.3.0` and image `a1e8cf7`
-while the chart `0.3.1` same-cluster Vault integration is prepared for reconciliation. The
-matching Authentik provider and development callback are live, the GPU cluster has the
-uncommitted OIDC client secret, and local profile authentication remains enabled as the
-recovery path.
+The development instance is healthy on Meta Harness chart `0.3.1` and image `a1e8cf7` with
+same-cluster development Vault credential resolution live. The broker authenticates with its
+projected Kubernetes identity, can resolve only the synthetic test record, and has no static
+Vault token or push credential reference. Shared Authentik OIDC and local-profile recovery
+remain healthy.
 
 ## Completed
 
 - Deployed the development instance at `meta-harness-dev.home.hope-leniency.com` using a
   single-replica PostgreSQL StatefulSet and an in-cluster execution node.
 - Corrected DNS to the GPU node Traefik address `192.168.8.130`.
-- Updated the pinned chart through `0.3.0`; it retains the writable `/tmp` scratch volumes
+- Updated the pinned chart through `0.3.1`; it retains the writable `/tmp` scratch volumes
   introduced in `0.2.3`.
 - Added Authentik issuer, client ID, development callback, existing-secret reference, and
   retained local profile authentication.
@@ -32,7 +32,7 @@ recovery path.
   mount, file audit device, Kubernetes auth configuration, and broker role.
 - Copied only the public `ca.crt` from `vault/vault-server-tls` into the out-of-band
   `meta-harness/meta-harness-vault-ca` Secret; its data contains only the `ca.crt` key.
-- Prepared chart `0.3.1` values with image `a1e8cf7`, the dedicated broker identity,
+- Reconciled chart `0.3.1` values with image `a1e8cf7`, the dedicated broker identity,
   `authRole=meta-harness-workspace-broker-dev`, and only the synthetic reference allowlist.
   No static Vault token, push credential reference, or real Git credential is configured.
 - Configured Kubernetes auth to load the rotating reviewer token and CA directly from the
@@ -45,6 +45,12 @@ recovery path.
 - Added a hidden-prompt synthetic preload helper that generates a random non-production secret
   in memory, writes a typed KV v2 record through stdin with a 30-minute expiry, and removes the
   ephemeral root CLI token cache.
+- Recreated and operator-unsealed the `OnDelete` Vault pod, enabled the persistent file audit
+  device, and bootstrapped the `meta-harness-dev/` KV v2 mount, exact policy, Kubernetes auth
+  mount, and role without committing or printing operator credentials.
+- Removed the completed integration handoff prompt. The production-Vault isolation decision
+  remains in `requirements.md` and the integration runbook; no production Vault material was
+  accessed or copied.
 
 ## Validation
 
@@ -65,16 +71,36 @@ recovery path.
 - `/auth/oidc/login`: HTTP 307 to the shared Authentik authorization endpoint with the exact
   development callback; API logs show successful OIDC discovery with HTTP 200.
 - `/auth/local`: HTTP 200, confirming the local-profile recovery route remains functional.
+- `scripts/run-static-checks.sh` and `git diff --check`: pass on 2026-08-11 after the final
+  policy, network, bootstrap, and preload changes.
+- Flux source and all seven Kustomizations: `Ready=True` at `main@sha1:dfb01ea5` on
+  2026-08-11; Meta Harness Helm revision 5 is ready on chart `0.3.1`.
+- `vault-audit`: bound 1 GiB `vault-local` claim with prune disabled; `vault-0` mounts it at
+  `/vault/audit` while its only StatefulSet claim template remains `data`.
+- Vault: initialized, unsealed, healthy; file audit log non-empty; ephemeral root CLI token
+  cache absent after both idempotent bootstrap helpers.
+- Live Kubernetes login: projected audience `vault` token authenticated as
+  `meta-harness/meta-harness-workspace-broker`, received the exact broker policy with a TTL no
+  greater than 20 minutes, and was recorded successfully in the persistent audit log with role
+  `meta-harness-workspace-broker-dev`.
+- Exact-path policy: synthetic record read returned HTTP 200; sibling read and mount listing
+  returned HTTP 403.
+- Broker resolution: exact target returned username `vault-dev-test` and a non-empty secret
+  without printing it. Wrong host, repository, scope, unknown reference, and sibling reference
+  each returned HTTP 403 with no credential fields.
+- Runtime broker spec: dedicated ServiceAccount, audience `vault`, CA-only Secret, exact single
+  reference allowlist, image `a1e8cf7`, and no static token or push credential environment.
+- All seven Meta Harness pods: `Running`, ready, and zero restarts; application HTTPS returned
+  HTTP 200; OIDC returned the exact Authentik development callback; local profile auth returned
+  HTTP 200; node `cluster` reported connected with read, patch, and commit tools.
+- Approved Git regression: a throwaway node workspace staged an un-applied patch proposal,
+  applied it only after approval, completed approved `git.commit`, and recorded
+  `candidate.committed`; no temporary-directory error occurred.
 
 ## Open Items
 
 - Complete one interactive Authentik login/callback with an operator identity; automated
   validation confirmed discovery and the authorization redirect but did not submit credentials.
-- Verify the previously failing approved `git.commit` workflow.
-- Implement the same-cluster development Vault integration described in
-  `doc/tasks/meta-harness/runbooks/vault-integration.md`: reconcile the prepared manifests,
-  recreate and unseal `vault-0`, run the operator bootstrap, and complete positive, denial,
-  audit, and regression tests.
 
 ## Risks
 
