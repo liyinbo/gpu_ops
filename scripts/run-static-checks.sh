@@ -29,6 +29,7 @@ sh -n apps/meta-harness/bootstrap-secrets.sh
 sh -n scripts/vault/check-health.sh
 sh -n scripts/vault/initialize.sh
 sh -n scripts/vault/bootstrap-meta-harness.sh
+sh -n scripts/vault/preload-meta-harness-test.sh
 sh -n scripts/tts/render.sh
 sh -n scripts/tts/check-scheduling.sh
 sh -n scripts/tts/check-api-startup.sh
