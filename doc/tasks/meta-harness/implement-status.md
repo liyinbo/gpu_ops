@@ -35,6 +35,10 @@ recovery path.
 - Prepared chart `0.3.1` values with image `a1e8cf7`, the dedicated broker identity,
   `authRole=meta-harness-workspace-broker-dev`, and only the synthetic reference allowlist.
   No static Vault token, push credential reference, or real Git credential is configured.
+- Configured Kubernetes auth to load the rotating reviewer token and CA directly from the
+  Vault pod ServiceAccount projection. Supplying a CA value while omitting the reviewer token
+  made Vault fall back to the audience-scoped client JWT for TokenReview and was rejected;
+  the bootstrap now explicitly selects the same-cluster local reviewer behavior.
 
 ## Validation
 

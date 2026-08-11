@@ -60,7 +60,10 @@ fi
 kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
   vault write auth/kubernetes/config \
     kubernetes_host=https://kubernetes.default.svc:443 \
-    kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    token_reviewer_jwt= \
+    kubernetes_ca_cert= \
+    disable_local_ca_jwt=false \
+    disable_iss_validation=true
 
 kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
   vault write auth/kubernetes/role/meta-harness-workspace-broker-dev \
