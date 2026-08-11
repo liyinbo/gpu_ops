@@ -53,3 +53,17 @@
   and prove wrong target, wrong scope, unknown reference, and sibling-path access fail closed.
 - [x] Remove the obsolete cross-cluster production-Vault handoff after preserving its security
   decision in the task records.
+
+## Phase 6: Vault-Backed Agent Provider
+
+- [x] Publish the Phase 29 application image and chart containing `providers.*` and the
+  dedicated credential-ingest and worker identities.
+- [x] Add disjoint exact-path policy sources: create/update-only ingest and read-only worker,
+  with no list, delete, destroy, repository, or synthetic-test access.
+- [x] Add an idempotent hidden-prompt bootstrap for the two same-cluster Kubernetes auth roles.
+- [x] Configure the secret-free `claude-live` provider, disable the mock engine, and reuse only
+  Vault's existing public CA Secret.
+- [ ] Have an administrator store the provider key through the Vault tool and approve the
+  first-use grant to `brain:claude-live`.
+- [ ] Prove a real provider answer and confirm distinct ingest/worker logins in the retained
+  Vault audit log without printing the provider key.

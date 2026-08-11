@@ -64,6 +64,16 @@ v2 record. The policy must not list the mount or access sibling paths. No
 Only Vault's public CA certificate may be copied into the `meta-harness` namespace. Vault CA
 private keys and server private keys must remain in `vault`.
 
+### REQ-MH-011 Vault-Backed Agent Provider
+
+The development instance must use secret-free GitOps metadata for the enabled agent provider
+and accept its API key only through the administrator-only Vault tool. A dedicated ingest
+identity may create or update exactly `meta-harness-dev/data/providers/claude` but must not
+read, list, delete, or destroy it. A distinct worker identity may read exactly that path but
+must not create, update, list, delete, or destroy it. Both must use same-cluster Kubernetes
+auth with audience `vault`; neither may use a static token or the workspace-broker identity.
+The API key must not enter Git, SOPS, a Kubernetes Secret, or any unrelated workload.
+
 ## Operational Requirements
 
 - Create runtime, registry, chart repository, and OIDC secrets with
@@ -75,3 +85,5 @@ private keys and server private keys must remain in `vault`.
 - Do not treat development database or workspace volumes as production-grade HA storage.
 - Keep the development Vault sealed-state recovery material in the approved password manager;
   never expose it to Meta Harness.
+- Keep provider API keys out of deployment automation. An administrator enters the key once
+  through the running application's password field after the provider identities reconcile.

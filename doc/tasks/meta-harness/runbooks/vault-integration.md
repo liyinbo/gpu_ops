@@ -125,3 +125,29 @@ OIDC routing, local-auth denial, node connectivity, and an approved `git.commit`
 Do not ingest a real Forgejo token or enable `pushCredentialReference` in this implementation.
 That requires a separate decision about the exact Git host, repository metadata, token scope,
 expiration, rotation, revocation, and the branch allowed for development pushes.
+
+## Stage 6: Agent Provider Credentials
+
+Keep the workspace-broker policy, role, and synthetic reference unchanged. Apply the two
+additional exact-path policies and Kubernetes roles with:
+
+```sh
+scripts/vault/bootstrap-meta-harness-providers.sh
+```
+
+The script accepts the Vault initial root token only through a hidden TTY prompt, writes no
+operator material, and removes the ephemeral CLI token cache. It configures:
+
+- `meta-harness-credential-ingest`: create/update only on
+  `meta-harness-dev/data/providers/claude`.
+- `meta-harness-worker`: read only on the same exact path.
+- separate Kubernetes roles bound to the corresponding `meta-harness` ServiceAccounts with
+  audience `vault`.
+
+After chart `0.3.3` reconciles, an administrator opens the Vault tool and stores the provider
+key using provider id `claude-live` and reference path `providers/claude`. The key must be
+entered only in that password field, never in this runbook, a shell argument, environment
+variable, Git, SOPS, or a Kubernetes Secret. The first provider run raises the expected
+high-risk grant for `brain:claude-live`; approve it and retry. Confirm a real answer and the
+two distinct `auth/kubernetes/login` records in `/vault/audit/audit.log` without printing the
+key or Vault response bodies that contain it.

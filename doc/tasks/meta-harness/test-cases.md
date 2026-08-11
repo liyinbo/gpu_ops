@@ -110,6 +110,26 @@ node connectivity, and the approved `git.commit` flow.
 Expected result: existing behavior remains healthy. Git push remains disabled because no push
 credential reference is configured.
 
+### TC-MH-150 Provider Identity Separation
+
+Render chart `0.3.3` with the deployment values and inspect the live workloads and Vault roles.
+
+Expected result: `meta-harness-credential-ingest` and `meta-harness-worker` are separate
+ServiceAccounts using audience `vault`. Ingest has create/update only and worker has read only
+on `meta-harness-dev/data/providers/claude`; neither can list, delete, access the synthetic
+broker path, or use a static Vault token. The existing workspace-broker role is unchanged.
+
+### TC-MH-160 Provider Ingest And Resolution
+
+As an administrator, store the Claude API key through the Vault tool at
+`vault:providers/claude`, start a `claude-live` run, approve the first-use grant to
+`brain:claude-live`, and retry.
+
+Expected result: ingest returns only the reference; the first run fails closed with the grant
+approval; the approved retry receives a real provider answer. The retained Vault audit log
+contains distinct Kubernetes logins for the ingest and worker roles, and no inspected surface
+prints or persists the key.
+
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,

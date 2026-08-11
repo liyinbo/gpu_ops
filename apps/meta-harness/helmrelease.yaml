@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: meta-harness
-      version: "0.3.1"
+      version: "0.3.3"
       sourceRef:
         kind: HelmRepository
         name: meta-harness
@@ -17,7 +17,7 @@ spec:
   values:
     image:
       repository: forgejo.home.hope-leniency.com/limbo/meta-harness
-      tag: "2bc9223"
+      tag: "1f95e17"
     imagePullSecrets:
       - name: forgejo-registry
 
@@ -60,6 +60,29 @@ spec:
         existingSecret: meta-harness-vault-ca
         key: ca.crt
         mountPath: /var/run/meta-harness/vault-ca
+
+    providers:
+      # Secret-free provider metadata. An administrator stores the key once through the
+      # Vault hand after deployment; only this opaque reference is committed.
+      configJson: |
+        [{"id":"claude-live","label":"Claude","protocol":"anthropic-messages","baseUrl":"https://api.anthropic.com","models":["claude-sonnet-5"],"credentialRef":"vault:providers/claude","default":true}]
+      defaultEngine: claude-live
+      mockEngineEnabled: false
+      vault:
+        enabled: true
+        url: https://vault.vault.svc:8200
+        mount: meta-harness-dev
+        referencesJson: '{"vault:providers/claude":"providers/claude"}'
+        authMount: kubernetes
+        authAudience: vault
+        ingest:
+          authRole: meta-harness-credential-ingest
+        worker:
+          authRole: meta-harness-worker
+        ca:
+          existingSecret: meta-harness-vault-ca
+          key: ca.crt
+          mountPath: /var/run/meta-harness/vault-provider-ca
 
     # The execution site (meta_harness ADR 0017): workspaces are created on this volume at
     # connect time, and the control plane never reads that tree as a path.

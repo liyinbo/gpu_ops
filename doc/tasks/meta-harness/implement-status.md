@@ -10,6 +10,12 @@ projected Kubernetes identity, can resolve only the synthetic test record, and h
 Vault token or push credential reference. Shared Authentik OIDC is the only browser sign-in
 method; local-profile authentication is disabled in both the UI and API.
 
+The Phase 29 provider deployment configuration is prepared for chart `0.3.3` and image
+`1f95e17`. It declares `claude-live` as the real default, disables `mock`, and defines
+separate write-only ingest and read-only worker Vault identities. Applying the two new Vault
+policies and Kubernetes roles through the operator-held hidden token prompt is the remaining
+prerequisite before reconciliation.
+
 ## Completed
 
 - Deployed the development instance at `meta-harness-dev.home.hope-leniency.com` using a
@@ -56,6 +62,13 @@ method; local-profile authentication is disabled in both the UI and API.
 - Upgraded through image `68904ca`, which exposes the configured Authentik sign-in action in the
   SPA and redirects a successful authorization-code callback to `/app/`, then image `2bc9223`,
   which rejects disabled local authentication at the API boundary.
+- Published Meta Harness chart `0.3.3` and linux/amd64 image `1f95e17`; the retrieved Forgejo
+  chart contains the Phase 29 `providers.*` values and dedicated provider identity templates.
+- Added exact provider policy sources without changing the existing workspace-broker policy:
+  ingest has only create/update and worker has only read on
+  `meta-harness-dev/data/providers/claude`.
+- Added a separate idempotent hidden-prompt provider bootstrap for the two Kubernetes auth
+  roles, each bound to its own rendered ServiceAccount with audience `vault`.
 
 ## Validation
 
@@ -117,11 +130,20 @@ method; local-profile authentication is disabled in both the UI and API.
   selectors, recovery labels, or local sign-in buttons. `/auth/config` reported OIDC enabled and
   local auth disabled; direct `POST /auth/local` returned HTTP 403. The Authentik action reached
   the live authentication flow with the exact client ID and development callback.
+- Phase 29 Meta Harness source gate: 158 frontend tests and 330 Python tests passed with 23
+  expected skips, plus production build, zero dependency audit findings, migration, and Helm
+  checks. The `gpu_ops` static gate and `git diff --check` pass with the provider deployment
+  configuration; a local chart `0.3.3` render proves the distinct ServiceAccounts, roles,
+  audience-scoped tokens, exact allowlist, and absence of static provider tokens or credentials.
 
 ## Open Items
 
 - Complete one interactive Authentik login/callback with an operator identity; automated
   validation confirmed discovery and the authorization redirect but did not submit credentials.
+- Apply the provider Vault policies and roles with the operator-held root token through
+  `scripts/vault/bootstrap-meta-harness-providers.sh`, then reconcile chart `0.3.3`.
+- Store the Claude key through the Vault tool, approve its first-use grant, and prove a real
+  response plus distinct ingest/worker entries in the persistent Vault audit log.
 
 ## Risks
 
