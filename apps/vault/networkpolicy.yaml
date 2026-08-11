@@ -56,3 +56,10 @@ spec:
       ports:
         - protocol: TCP
           port: 6443
+    # Authentik OIDC discovery and token exchange for the restricted human operator role.
+    - to:
+        - ipBlock:
+            cidr: 192.168.8.20/32
+      ports:
+        - protocol: TCP
+          port: 443

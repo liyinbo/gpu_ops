@@ -74,6 +74,16 @@ must not create, update, list, delete, or destroy it. Both must use same-cluster
 auth with audience `vault`; neither may use a static token or the workspace-broker identity.
 The API key must not enter Git, SOPS, a Kubernetes Secret, or any unrelated workload.
 
+### REQ-MH-012 Restricted Human Vault Administration
+
+Routine changes to the two Meta Harness provider policies and Kubernetes auth roles must use
+an Authentik-backed Vault OIDC identity rather than the initial root token. The public OIDC
+client must use PKCE, one exact localhost callback, and no client secret. Authentik and Vault
+must both require membership in `Vault GPU Operators`. The resulting Vault policy may manage
+only the two provider policy documents and two provider Kubernetes auth roles; it must not
+administer secret mounts, records, auth configuration, the workspace-broker identity, or the
+storage-cluster Vault.
+
 ## Operational Requirements
 
 - Create runtime, registry, chart repository, and OIDC secrets with
@@ -87,3 +97,5 @@ The API key must not enter Git, SOPS, a Kubernetes Secret, or any unrelated work
   never expose it to Meta Harness.
 - Keep provider API keys out of deployment automation. An administrator enters the key once
   through the running application's password field after the provider identities reconcile.
+- Reserve the initial root token for bootstrapping or recovering the restricted OIDC auth
+  method. Never pass it in chat, arguments, environment variables, Git, or Kubernetes Secrets.

@@ -67,3 +67,16 @@
   first-use grant to `brain:claude-live`.
 - [ ] Prove a real provider answer and confirm distinct ingest/worker logins in the retained
   Vault audit log without printing the provider key.
+
+## Phase 7: Restricted Operator OIDC
+
+- [x] Define a public PKCE Authentik application with one exact localhost callback and a
+  dedicated `Vault GPU Operators` group.
+- [x] Add an exact Vault operator policy and an idempotent one-time root bootstrap for the
+  OIDC auth mount and group-bound role.
+- [x] Replace the provider bootstrap root prompt with interactive Authentik OIDC login and
+  short-lived token cleanup.
+- [x] Permit Vault egress only to the private Authentik HTTPS address in addition to its
+  existing DNS and Kubernetes API access.
+- [ ] Add the intended human operator to the Authentik group, run the one-time root bootstrap,
+  and prove a restricted OIDC login plus denied access outside the four exact management paths.

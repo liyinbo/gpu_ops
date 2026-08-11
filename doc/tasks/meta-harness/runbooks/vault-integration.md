@@ -129,20 +129,41 @@ expiration, rotation, revocation, and the branch allowed for development pushes.
 ## Stage 6: Agent Provider Credentials
 
 Keep the workspace-broker policy, role, and synthetic reference unchanged. Apply the two
-additional exact-path policies and Kubernetes roles with:
+additional exact-path policies and Kubernetes roles with restricted operator OIDC.
+
+First, an Authentik administrator adds the intended human operator to `Vault GPU Operators`.
+Do not add users declaratively or broaden the group binding. Then initialize Vault OIDC once:
+
+```sh
+scripts/vault/bootstrap-operator-oidc.sh
+```
+
+This is the only step that accepts the Vault initial root token. Enter it only through the
+script's hidden TTY prompt. The script enables the `oidc/` auth mount, configures the public
+`gpu-vault-operator` client, and creates a group-bound role whose policy can manage only the
+two provider policy documents and two provider Kubernetes roles. It removes the root CLI
+token cache when it exits.
+
+For routine provider policy and role reconciliation, run:
 
 ```sh
 scripts/vault/bootstrap-meta-harness-providers.sh
 ```
 
-The script accepts the Vault initial root token only through a hidden TTY prompt, writes no
-operator material, and removes the ephemeral CLI token cache. It configures:
+The script starts a temporary localhost callback port-forward and prints an Authentik login
+URL. Complete browser sign-in as a `Vault GPU Operators` member. The resulting short-lived
+Vault token is cached only inside `vault-0`, is used to configure the exact resources below,
+and is removed when the script exits:
 
 - `meta-harness-credential-ingest`: create/update only on
   `meta-harness-dev/data/providers/claude`.
 - `meta-harness-worker`: read only on the same exact path.
 - separate Kubernetes roles bound to the corresponding `meta-harness` ServiceAccounts with
   audience `vault`.
+
+Validate the OIDC token cannot read `meta-harness-dev/data/*`, change `sys/mounts` or
+`sys/auth`, change the workspace-broker policy or role, or create an unrelated policy. Do not
+use this identity with `storage_server_ops` Vault.
 
 After chart `0.3.3` reconciles, an administrator opens the Vault tool and stores the provider
 key using provider id `claude-live` and reference path `providers/claude`. The key must be

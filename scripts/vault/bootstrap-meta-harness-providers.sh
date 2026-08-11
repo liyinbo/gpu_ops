@@ -6,8 +6,13 @@ kubeconfig=${KUBECONFIG:-"${repo_dir}/kubeconfig-gpu-cluster.yaml"}
 ingest_policy_file="${repo_dir}/apps/vault/policies/meta-harness-credential-ingest.hcl"
 worker_policy_file="${repo_dir}/apps/vault/policies/meta-harness-worker.hcl"
 token_cache=/home/vault/.vault-token
+port_forward_pid=
 
 cleanup() {
+  if test -n "$port_forward_pid"; then
+    kill "$port_forward_pid" >/dev/null 2>&1 || true
+    wait "$port_forward_pid" >/dev/null 2>&1 || true
+  fi
   kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
     rm -f "$token_cache" >/dev/null 2>&1 || true
 }
@@ -15,23 +20,23 @@ trap cleanup EXIT HUP INT TERM
 
 KUBECONFIG="$kubeconfig" "${repo_dir}/scripts/vault/check-health.sh"
 
-old_tty=$(stty -g </dev/tty)
-trap 'stty "$old_tty" </dev/tty; cleanup' EXIT HUP INT TERM
-stty -echo </dev/tty
-printf 'Vault initial root token: ' >/dev/tty
-IFS= read -r root_token </dev/tty
-stty "$old_tty" </dev/tty
-printf '\n' >/dev/tty
+if ! test -t 0 || ! test -t 1; then
+  echo "An interactive TTY is required for browser-backed Vault OIDC login" >&2
+  exit 1
+fi
 
-printf '%s\n' "$root_token" | kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
-  vault login -no-print token=-
-unset root_token
+kubectl --kubeconfig "$kubeconfig" -n vault port-forward pod/vault-0 \
+  8250:8250 >/dev/null 2>&1 &
+port_forward_pid=$!
 
-kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
-  vault secrets list -format=json | \
-  jq -e '.["meta-harness-dev/"].type == "kv" and .["meta-harness-dev/"].options.version == "2"' >/dev/null
-kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
-  vault auth list -format=json | jq -e '.["kubernetes/"].type == "kubernetes"' >/dev/null
+echo "Open the Authentik URL printed below and sign in as a Vault GPU Operators member."
+kubectl --kubeconfig "$kubeconfig" -n vault exec -it vault-0 -- \
+  vault login -no-print -method=oidc -path=oidc \
+    role=meta-harness-operator \
+    port=8250 \
+    callbackhost=localhost \
+    listenaddress=0.0.0.0 \
+    skip_browser=true
 
 kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
   vault policy write meta-harness-credential-ingest - <"$ingest_policy_file"

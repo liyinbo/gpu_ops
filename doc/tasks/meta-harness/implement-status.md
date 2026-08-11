@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Date: 2026-08-11
+Date: 2026-08-12
 
 The development instance is healthy on Meta Harness chart `0.3.1` and image `2bc9223` with
 same-cluster development Vault credential resolution live. The broker authenticates with its
@@ -13,8 +13,9 @@ method; local-profile authentication is disabled in both the UI and API.
 The Phase 29 provider deployment configuration is prepared for chart `0.3.3` and image
 `1f95e17`. It declares `claude-live` as the real default, disables `mock`, and defines
 separate write-only ingest and read-only worker Vault identities. Applying the two new Vault
-policies and Kubernetes roles through the operator-held hidden token prompt is the remaining
-prerequisite before reconciliation.
+policies and Kubernetes roles through restricted Authentik-backed Vault OIDC is the remaining
+prerequisite before reconciliation. The desired state now reserves the initial root token for
+one-time OIDC bootstrap instead of routine provider administration.
 
 ## Completed
 
@@ -69,6 +70,13 @@ prerequisite before reconciliation.
   `meta-harness-dev/data/providers/claude`.
 - Added a separate idempotent hidden-prompt provider bootstrap for the two Kubernetes auth
   roles, each bound to its own rendered ServiceAccount with audience `vault`.
+- Added a no-secret public PKCE Authentik client and group-gated application in
+  `storage_server_ops`, plus a Vault role that independently requires the exact
+  `Vault GPU Operators` group claim.
+- Added a one-time hidden-prompt OIDC bootstrap and an exact operator policy limited to the two
+  provider policy documents and two provider Kubernetes auth roles. The routine provider
+  bootstrap now uses interactive OIDC and removes its short-lived token cache.
+- Added Vault egress to only `192.168.8.20:443` for Authentik discovery and token exchange.
 
 ## Validation
 
@@ -140,8 +148,10 @@ prerequisite before reconciliation.
 
 - Complete one interactive Authentik login/callback with an operator identity; automated
   validation confirmed discovery and the authorization redirect but did not submit credentials.
-- Apply the provider Vault policies and roles with the operator-held root token through
-  `scripts/vault/bootstrap-meta-harness-providers.sh`, then reconcile chart `0.3.3`.
+- Add the intended operator to `Vault GPU Operators`, run
+  `scripts/vault/bootstrap-operator-oidc.sh` once with the root token through its hidden TTY
+  prompt, then apply the provider policies and roles through OIDC with
+  `scripts/vault/bootstrap-meta-harness-providers.sh` and reconcile chart `0.3.3`.
 - Store the Claude key through the Vault tool, approve its first-use grant, and prove a real
   response plus distinct ingest/worker entries in the persistent Vault audit log.
 

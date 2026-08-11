@@ -130,6 +130,17 @@ approval; the approved retry receives a real provider answer. The retained Vault
 contains distinct Kubernetes logins for the ingest and worker roles, and no inspected surface
 prints or persists the key.
 
+### TC-MH-170 Restricted Operator OIDC
+
+Confirm the Authentik client is public, has only
+`http://localhost:8250/oidc/callback`, and gates the application on `Vault GPU Operators`.
+Log in through `scripts/vault/bootstrap-meta-harness-providers.sh` as a group member.
+
+Expected result: Vault issues a token with only `meta-harness-operator`; it can update and read
+the two provider policy documents and two provider Kubernetes roles. Attempts to access KV
+records, mount or auth configuration, the workspace-broker policy or role, and unrelated
+policy names return permission denied. The short-lived CLI token cache is removed on exit.
+
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
