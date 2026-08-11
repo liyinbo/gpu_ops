@@ -101,6 +101,12 @@ remain healthy.
 - Approved Git regression: a throwaway node workspace staged an un-applied patch proposal,
   applied it only after approval, completed approved `git.commit`, and recorded
   `candidate.committed`; no temporary-directory error occurred.
+- Meta Harness source commit `68904ca`: full CI passed with 143 frontend tests and 288 Python
+  tests, production SPA build, schema migration, frontend bundle validation, and Helm checks.
+- Authentik browser rollout: Helm revision 6 is ready with all Meta Harness components on image
+  `68904ca`; `/auth/config` reports OIDC and local recovery enabled. A fresh Playwright browser
+  displayed both options and the Authentik action reached the live authentication flow with the
+  exact client ID and development callback.
 
 ## Open Items
 

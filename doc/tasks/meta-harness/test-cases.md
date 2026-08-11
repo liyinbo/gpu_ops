@@ -119,7 +119,9 @@ credential reference is configured.
 - TC-MH-010: Flux source and every Kustomization were `Ready=True` at
   `main@sha1:dfb01ea5`; Helm revision 5 was ready on chart `0.3.1`.
 - TC-MH-020: local-profile authentication returned HTTP 200; OIDC returned HTTP 307 to the
-  shared Authentik provider with the exact development callback. Interactive operator OIDC
+  shared Authentik provider with the exact development callback. After image `68904ca`, a fresh
+  browser rendered the Authentik action alongside local recovery and reached the live Authentik
+  authentication flow with the exact client and callback. Interactive operator credential
   submission remains separately open.
 - TC-MH-030: a throwaway node workspace staged a patch, applied it after approval, completed
   approved `git.commit`, and emitted `candidate.committed` without a temporary-directory error.
