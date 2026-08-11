@@ -11,7 +11,7 @@ kubectl kustomize apps/meta-harness >/tmp/gpu-ops-meta-harness-render.yaml
 ```
 
 Expected result: all Meta Harness manifests render without errors and the HelmRelease pins
-chart `0.3.1` with image `68904ca`, the expected OIDC settings, and the role-based Vault
+chart `0.3.1` with image `2bc9223`, OIDC enabled, local authentication disabled, and role-based Vault
 configuration.
 
 ### TC-MH-002 Bootstrap Script Syntax
@@ -44,13 +44,12 @@ Reconcile `gpu-apps` after the Authentik provider and secrets are available.
 Expected result: the HelmRelease and all Meta Harness workloads report ready with chart
 `0.3.1`.
 
-### TC-MH-020 OIDC and Recovery Authentication
+### TC-MH-020 OIDC-Only Authentication
 
-Sign in through Authentik, then verify a local profile can still sign in when OIDC is
-unavailable.
+Open a fresh browser and follow the Authentik action, then directly call the local-auth API.
 
 Expected result: Authentik returns to the development callback and establishes a session;
-local profile authentication remains usable as the recovery path.
+the browser offers no local profiles and the local-auth API returns HTTP 403.
 
 ### TC-MH-030 Approved Git Commit
 
@@ -105,7 +104,7 @@ no response or log exposes the test secret.
 
 ### TC-MH-140 Existing Workload Regression
 
-After reconciliation, verify Flux, all Meta Harness pods, HTTPS, OIDC routing, local profiles,
+After reconciliation, verify Flux, all Meta Harness pods, HTTPS, OIDC routing, local-auth denial,
 node connectivity, and the approved `git.commit` flow.
 
 Expected result: existing behavior remains healthy. Git push remains disabled because no push

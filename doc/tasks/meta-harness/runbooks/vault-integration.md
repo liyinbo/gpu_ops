@@ -12,7 +12,8 @@ reachable only through ClusterIP services. Meta Harness is healthy on chart `0.3
 Kubernetes auth mount; use it while retaining image `a1e8cf7`.
 
 Post-integration note (2026-08-11): image `68904ca` superseded `a1e8cf7` to complete the
-browser Authentik handoff. It does not change the Vault values or credential boundary below.
+browser Authentik handoff, then image `2bc9223` disabled local authentication in both the UI
+and API. Neither changes the Vault values or credential boundary below.
 
 ## Stage 1: Persistent Audit Storage
 
@@ -117,7 +118,7 @@ Confirm the audit log contains `auth/kubernetes/login` for
 Vault client is constructed per request.
 
 Finally rerun static checks, Flux/Helm readiness, all seven Meta Harness pod checks, HTTPS,
-OIDC routing, local-profile recovery, node connectivity, and an approved `git.commit`.
+OIDC routing, local-auth denial, node connectivity, and an approved `git.commit`.
 
 ## Deferred Push Credential
 

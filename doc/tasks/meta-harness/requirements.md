@@ -27,8 +27,9 @@ provide the configured file, patch, shell, web, and Git tools over its relay cha
 ### REQ-MH-004 Authentication
 
 The instance must support Authentik OIDC through the provider shared with the production
-instance. Local profile authentication must remain enabled as a recovery path. The OIDC
-client secret must not be committed in plaintext.
+instance. Local profile authentication must be disabled in both the browser and API so this
+externally reachable deployment is OIDC-only. The OIDC client secret must not be committed in
+plaintext.
 
 ### REQ-MH-005 Development Database
 

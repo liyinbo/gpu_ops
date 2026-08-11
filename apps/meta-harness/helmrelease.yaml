@@ -17,7 +17,7 @@ spec:
   values:
     image:
       repository: forgejo.home.hope-leniency.com/limbo/meta-harness
-      tag: "68904ca"
+      tag: "2bc9223"
     imagePullSecrets:
       - name: forgejo-registry
 
@@ -27,9 +27,9 @@ spec:
       api: 1
 
     auth:
-      # Shared Authentik provider with the production instance. Local profile auth stays
-      # enabled as the recovery path if OIDC is unavailable.
-      localAuthEnabled: true
+      # Shared Authentik provider with the production instance. This externally reachable
+      # deployment is OIDC-only; the API rejects local profile authentication as well.
+      localAuthEnabled: false
       oidc:
         enabled: true
         issuerUrl: https://auth.home.hope-leniency.com/application/o/meta-harness/
