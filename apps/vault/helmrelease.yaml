@@ -92,12 +92,17 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 128Mi
+        - name: vault-audit
+          persistentVolumeClaim:
+            claimName: vault-audit
       volumeMounts:
         - name: vault-server-tls
           mountPath: /vault/userconfig/vault-server-tls
           readOnly: true
         - name: tmp
           mountPath: /tmp
+        - name: vault-audit
+          mountPath: /vault/audit
       dataStorage:
         enabled: true
         size: 5Gi

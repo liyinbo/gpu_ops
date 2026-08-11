@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: meta-harness
-      version: "0.3.0"
+      version: "0.3.1"
       sourceRef:
         kind: HelmRepository
         name: meta-harness
@@ -48,6 +48,18 @@ spec:
       existingSecret: meta-harness
       bundleSigningKey: BUNDLE_SIGNING_SECRET
       bundleTokenKey: BUNDLE_TOKEN_SECRET
+
+    vault:
+      enabled: true
+      url: https://vault.vault.svc:8200
+      mount: meta-harness-dev
+      authRole: meta-harness-workspace-broker-dev
+      authMount: kubernetes
+      referencesJson: '{"vault:tests/credential-resolve":"tests/credential-resolve"}'
+      ca:
+        existingSecret: meta-harness-vault-ca
+        key: ca.crt
+        mountPath: /var/run/meta-harness/vault-ca
 
     # The execution site (meta_harness ADR 0017): workspaces are created on this volume at
     # connect time, and the control plane never reads that tree as a path.

@@ -11,7 +11,8 @@ kubectl kustomize apps/meta-harness >/tmp/gpu-ops-meta-harness-render.yaml
 ```
 
 Expected result: all Meta Harness manifests render without errors and the HelmRelease pins
-chart `0.3.0` with the expected OIDC secret reference and callback.
+chart `0.3.1` with image `a1e8cf7`, the expected OIDC settings, and the role-based Vault
+configuration.
 
 ### TC-MH-002 Bootstrap Script Syntax
 
@@ -41,7 +42,7 @@ all pass.
 Reconcile `gpu-apps` after the Authentik provider and secrets are available.
 
 Expected result: the HelmRelease and all Meta Harness workloads report ready with chart
-`0.3.0`.
+`0.3.1`.
 
 ### TC-MH-020 OIDC and Recovery Authentication
 

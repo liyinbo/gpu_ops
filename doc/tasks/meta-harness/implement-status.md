@@ -4,10 +4,11 @@
 
 Date: 2026-08-11
 
-The development instance is healthy on Meta Harness chart `0.3.0` and image `a1e8cf7` with
-shared-provider OIDC enabled. The matching Authentik provider and development callback are
-live, the GPU cluster has the uncommitted OIDC client secret, and local profile authentication
-remains enabled as the recovery path.
+The development instance remains healthy on Meta Harness chart `0.3.0` and image `a1e8cf7`
+while the chart `0.3.1` same-cluster Vault integration is prepared for reconciliation. The
+matching Authentik provider and development callback are live, the GPU cluster has the
+uncommitted OIDC client secret, and local profile authentication remains enabled as the
+recovery path.
 
 ## Completed
 
@@ -25,6 +26,15 @@ remains enabled as the recovery path.
   matching client secret into the GPU cluster as `meta-harness/meta-harness-oidc` without
   committing or printing the value.
 - Committed and reconciled the OIDC configuration at Git revision `8ad687d`.
+- Added a separately managed 1 GiB `vault-audit` claim with retention safeguards and mounted
+  it through the Vault pod template without changing `volumeClaimTemplates`.
+- Added exact-path policy source and an idempotent, hidden-prompt Vault bootstrap for the KV v2
+  mount, file audit device, Kubernetes auth configuration, and broker role.
+- Copied only the public `ca.crt` from `vault/vault-server-tls` into the out-of-band
+  `meta-harness/meta-harness-vault-ca` Secret; its data contains only the `ca.crt` key.
+- Prepared chart `0.3.1` values with image `a1e8cf7`, the dedicated broker identity,
+  `authRole=meta-harness-workspace-broker-dev`, and only the synthetic reference allowlist.
+  No static Vault token, push credential reference, or real Git credential is configured.
 
 ## Validation
 
@@ -52,9 +62,9 @@ remains enabled as the recovery path.
   validation confirmed discovery and the authorization redirect but did not submit credentials.
 - Verify the previously failing approved `git.commit` workflow.
 - Implement the same-cluster development Vault integration described in
-  `doc/tasks/meta-harness/runbooks/vault-integration.md`. Vault is healthy, but Meta Harness
-  currently has no Vault environment, identity volume, CA mount, reference allowlist, or push
-  credential reference.
+  `doc/tasks/meta-harness/runbooks/vault-integration.md`: reconcile the prepared manifests,
+  recreate and unseal `vault-0`, run the operator bootstrap, and complete positive, denial,
+  audit, and regression tests.
 
 ## Risks
 

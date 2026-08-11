@@ -17,6 +17,8 @@ NAMESPACE="${NAMESPACE:-meta-harness}"
 FORGEJO_USER="${FORGEJO_USER:-limbo}"
 FORGEJO_PAT_FILE="${FORGEJO_PAT_FILE:-../meta_harness_0/.forgejo_pat}"
 ROTATE="${ROTATE:-0}"
+VAULT_NAMESPACE="${VAULT_NAMESPACE:-vault}"
+VAULT_TLS_SECRET="${VAULT_TLS_SECRET:-vault-server-tls}"
 
 kubectl get namespace "$NAMESPACE" >/dev/null 2>&1 || kubectl create namespace "$NAMESPACE"
 
@@ -65,5 +67,23 @@ if [ -n "${OIDC_CLIENT_SECRET:-}" ]; then
 else
   echo "OIDC_CLIENT_SECRET not set - skipping; sign-in will use local profiles" >&2
 fi
+
+# Trust only the public CA served by the same-cluster development Vault. The temporary file
+# is mode 0600, and no TLS private key or CA signing Secret is read or copied.
+umask 077
+vault_ca_file=$(mktemp "${TMPDIR:-/tmp}/meta-harness-vault-ca.XXXXXX")
+cleanup_vault_ca() {
+  rm -f "$vault_ca_file"
+}
+trap cleanup_vault_ca EXIT HUP INT TERM
+kubectl get secret "$VAULT_TLS_SECRET" -n "$VAULT_NAMESPACE" \
+  -o jsonpath='{.data.ca\.crt}' | base64 -d >"$vault_ca_file"
+[ -s "$vault_ca_file" ] || { echo "Vault public CA is empty" >&2; exit 1; }
+kubectl create secret generic meta-harness-vault-ca -n "$NAMESPACE" \
+  --save-config --dry-run=client -o yaml \
+  --from-file=ca.crt="$vault_ca_file" | kubectl apply -f -
+cleanup_vault_ca
+trap - EXIT HUP INT TERM
+echo "same-cluster Vault public CA in place"
 
 echo "forgejo credentials in place"

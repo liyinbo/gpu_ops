@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - storageclass.yaml
+  - audit-pvc.yaml
   - helmrepository.yaml
   - tls.yaml
   - networkpolicy.yaml
