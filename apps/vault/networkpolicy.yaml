@@ -41,10 +41,18 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-    # Reserved for a future same-cluster Kubernetes auth mount.
+    # Kubernetes Service address before DNAT.
     - to:
         - ipBlock:
             cidr: 10.43.0.1/32
       ports:
         - protocol: TCP
           port: 443
+    # k3s evaluates this policy after Service DNAT, so the same API request reaches the
+    # single control-plane endpoint on its secure port.
+    - to:
+        - ipBlock:
+            cidr: 192.168.8.130/32
+      ports:
+        - protocol: TCP
+          port: 6443

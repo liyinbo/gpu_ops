@@ -85,6 +85,9 @@ Resolve the allowlisted synthetic reference and inspect the persistent Vault aud
 Expected result: resolution succeeds and the audit log records
 `auth/kubernetes/login` for role `meta-harness-workspace-broker-dev`.
 
+Prerequisite: from `vault-0`, the Kubernetes API must be reachable through the k3s
+post-Service-DNAT endpoint allowed by `apps/vault/networkpolicy.yaml`.
+
 ### TC-MH-120 Exact-Path Policy
 
 Test the synthetic path, a sibling path, and mount listing with the broker-issued policy.

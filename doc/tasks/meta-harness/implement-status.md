@@ -39,6 +39,9 @@ recovery path.
   Vault pod ServiceAccount projection. Supplying a CA value while omitting the reviewer token
   made Vault fall back to the audience-scoped client JWT for TokenReview and was rejected;
   the bootstrap now explicitly selects the same-cluster local reviewer behavior.
+- Added the exact k3s API endpoint (`192.168.8.130:6443`) to Vault egress policy after a live
+  pod check proved k3s evaluates the request after Service DNAT rather than against the existing
+  `10.43.0.1:443` Service rule.
 
 ## Validation
 
