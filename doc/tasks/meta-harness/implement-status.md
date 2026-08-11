@@ -143,6 +143,13 @@ one-time OIDC bootstrap instead of routine provider administration.
   checks. The `gpu_ops` static gate and `git diff --check` pass with the provider deployment
   configuration; a local chart `0.3.3` render proves the distinct ServiceAccounts, roles,
   audience-scoped tokens, exact allowlist, and absence of static provider tokens or credentials.
+- Restricted operator desired state: repository static checks and shell syntax checks passed on
+  2026-08-12. Flux reconciled all GPU-cluster Kustomizations at `main@sha1:a84e81e2`; the live
+  Vault NetworkPolicy contains only the added `192.168.8.20/32` TCP/443 Authentik rule, and a
+  request from `vault-0` reached the exact per-provider OIDC issuer. Storage-cluster Flux
+  reconciled revision `cbfe7782`; Authentik Helm revision 5 is ready, and live model inspection
+  confirmed the public client, single strict callback, non-superuser group, and enabled group
+  binding. Group membership and the root-authorized Vault OIDC bootstrap remain open.
 
 ## Open Items
 
