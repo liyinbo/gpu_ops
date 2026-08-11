@@ -4,11 +4,11 @@
 
 Date: 2026-08-11
 
-The development instance is healthy on Meta Harness chart `0.3.1` and image `68904ca` with
+The development instance is healthy on Meta Harness chart `0.3.1` and image `2bc9223` with
 same-cluster development Vault credential resolution live. The broker authenticates with its
 projected Kubernetes identity, can resolve only the synthetic test record, and has no static
-Vault token or push credential reference. Shared Authentik OIDC and local-profile recovery
-remain healthy.
+Vault token or push credential reference. Shared Authentik OIDC is the only browser sign-in
+method; local-profile authentication is disabled in both the UI and API.
 
 ## Completed
 
@@ -17,10 +17,10 @@ remain healthy.
 - Corrected DNS to the GPU node Traefik address `192.168.8.130`.
 - Updated the pinned chart through `0.3.1`; it retains the writable `/tmp` scratch volumes
   introduced in `0.2.3`.
-- Added Authentik issuer, client ID, development callback, existing-secret reference, and
-  retained local profile authentication.
+- Added Authentik issuer, client ID, development callback, and existing-secret reference.
 - Extended `bootstrap-secrets.sh` to apply `meta-harness-oidc` when
-  `OIDC_CLIENT_SECRET` is supplied and to report the local-profile fallback when it is not.
+  `OIDC_CLIENT_SECRET` is supplied and to warn that OIDC-only sign-in requires an existing
+  Secret when it is not.
 - Added Meta Harness manifest rendering and bootstrap shell syntax to the static checks.
 - Verified the shared Authentik provider accepts the development callback and copied its
   matching client secret into the GPU cluster as `meta-harness/meta-harness-oidc` without
@@ -53,9 +53,9 @@ remain healthy.
   accessed or copied.
 - Verified the live Authentik provider blueprint has the exact development callback and client
   ID, and its client secret matches the GPU-cluster OIDC Secret without printing either value.
-- Upgraded to image `68904ca`, which exposes the configured Authentik sign-in action in the SPA
-  and redirects a successful authorization-code callback to `/app/`; local profiles remain the
-  recovery path.
+- Upgraded through image `68904ca`, which exposes the configured Authentik sign-in action in the
+  SPA and redirects a successful authorization-code callback to `/app/`, then image `2bc9223`,
+  which rejects disabled local authentication at the API boundary.
 
 ## Validation
 
@@ -107,6 +107,16 @@ remain healthy.
   `68904ca`; `/auth/config` reports OIDC and local recovery enabled. A fresh Playwright browser
   displayed both options and the Authentik action reached the live authentication flow with the
   exact client ID and development callback.
+- OIDC-only rollout: Meta Harness source commit `2bc9223` passed 144 frontend tests, 289 Python
+  tests with 23 expected skips, production SPA build, schema migration, dependency audit, and
+  Helm checks. Repository static checks also passed.
+- Flux source and all seven Kustomizations reached `Ready=True` at `main@sha1:7cc15da8`; Helm
+  revision 7 is ready on chart `0.3.1`, and all seven pods run ready with zero restarts on image
+  `2bc9223` where applicable. HTTPS returned HTTP 200 and Vault remained healthy and unsealed.
+- A fresh Playwright Chromium context displayed only `Sign in with Authentik`: zero profile
+  selectors, recovery labels, or local sign-in buttons. `/auth/config` reported OIDC enabled and
+  local auth disabled; direct `POST /auth/local` returned HTTP 403. The Authentik action reached
+  the live authentication flow with the exact client ID and development callback.
 
 ## Open Items
 
@@ -115,8 +125,8 @@ remain healthy.
 
 ## Risks
 
-- OIDC depends on the shared cross-cluster Authentik provider; local profile authentication is
-  intentionally retained as a recovery path.
+- OIDC depends on the shared cross-cluster Authentik provider and is now the only sign-in path;
+  provider or OIDC Secret outages prevent new browser sessions until repaired.
 - The development PostgreSQL and node workspace claims use single-node `local-path` storage.
 - Chart `0.2.2` was published twice from different trees and must not be selected again.
 - A healthy workspace-broker pod does not prove Vault access; the broker constructs its Vault

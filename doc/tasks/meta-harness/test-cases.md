@@ -113,15 +113,15 @@ credential reference is configured.
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
-  and `scripts/run-static-checks.sh` passed; the render pins chart `0.3.1`, image `68904ca`,
+  and `scripts/run-static-checks.sh` passed; the latest render pins chart `0.3.1`, image `2bc9223`,
+  OIDC enabled, local auth disabled,
   role identity, exact allowlist, and no static or push credential.
 - TC-MH-010: Flux source and every Kustomization were `Ready=True` at
-  `main@sha1:dfb01ea5`; Helm revision 5 was ready on chart `0.3.1`.
-- TC-MH-020: local-profile authentication returned HTTP 200; OIDC returned HTTP 307 to the
-  shared Authentik provider with the exact development callback. After image `68904ca`, a fresh
-  browser rendered the Authentik action alongside local recovery and reached the live Authentik
-  authentication flow with the exact client and callback. Interactive operator credential
-  submission remains separately open.
+  `main@sha1:7cc15da8`; Helm revision 7 was ready on chart `0.3.1`.
+- TC-MH-020: a fresh Playwright browser rendered only `Sign in with Authentik` and reached the
+  shared Authentik flow with the exact client and callback. Profile controls were absent,
+  `/auth/config` reported local auth disabled, and direct local authentication returned HTTP 403.
+  Interactive operator credential submission remains separately open.
 - TC-MH-030: a throwaway node workspace staged a patch, applied it after approval, completed
   approved `git.commit`, and emitted `candidate.committed` without a temporary-directory error.
 - TC-MH-040: the application returned HTTPS 200 and node `cluster` was connected with the
@@ -137,5 +137,5 @@ credential reference is configured.
   reference, and sibling reference each returned HTTP 403 without credential fields. No test
   secret was printed.
 - TC-MH-140: all seven pods were running, ready, and at zero restarts; HTTPS, OIDC routing,
-  local authentication, node connectivity, and approved commit remained healthy. Git push
-  remained disabled.
+  local-auth denial, node connectivity, and the previously approved commit regression remained
+  healthy. Git push remained disabled.

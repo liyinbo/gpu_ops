@@ -26,8 +26,8 @@ OIDC_CLIENT_SECRET=<matching-shared-provider-secret> \
 The development and production instances share the Authentik provider managed by
 `storage_server_ops`, where the development callback is registered. Confirm that provider is
 available before reconciling this release. If `OIDC_CLIENT_SECRET` is omitted, the script
-leaves the OIDC secret unchanged or absent and reports that local profile sign-in remains
-available.
+leaves the OIDC secret unchanged or absent. This deployment has no local-profile fallback, so
+an existing OIDC Secret is required for sign-in.
 
 Then let Flux reconcile, or `flux reconcile kustomization gpu-apps --with-source`.
 

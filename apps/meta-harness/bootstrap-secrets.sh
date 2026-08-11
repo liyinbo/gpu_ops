@@ -65,7 +65,7 @@ if [ -n "${OIDC_CLIENT_SECRET:-}" ]; then
     --from-literal=OIDC_CLIENT_SECRET="$OIDC_CLIENT_SECRET" | kubectl apply -f -
   echo "oidc client secret in place"
 else
-  echo "OIDC_CLIENT_SECRET not set - skipping; sign-in will use local profiles" >&2
+  echo "OIDC_CLIENT_SECRET not set - skipping; OIDC-only sign-in requires an existing secret" >&2
 fi
 
 # Trust only the public CA served by the same-cluster development Vault. The temporary file
