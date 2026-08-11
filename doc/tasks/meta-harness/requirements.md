@@ -40,6 +40,29 @@ recreatable development data does not require production HA.
 The instance must be exposed through Traefik and cert-manager at
 `https://meta-harness-dev.home.hope-leniency.com` on the GPU node ingress address.
 
+### REQ-MH-007 Development Vault Isolation
+
+Meta Harness credential-broker testing must use the standalone Vault in the GPU cluster. It
+must not connect to the production Vault or copy production credentials, tokens, policies,
+unseal material, or KV records.
+
+### REQ-MH-008 Workload Identity
+
+The workspace broker must authenticate to development Vault through the same-cluster
+Kubernetes auth mount using a projected ServiceAccount token with audience `vault`. A static
+Vault token must not be mounted into Meta Harness.
+
+### REQ-MH-009 Least-Privilege Credential Resolution
+
+The first integration must allow the broker to read exactly one synthetic, non-production KV
+v2 record. The policy must not list the mount or access sibling paths. No
+`pushCredentialReference` may be configured until credential resolution and denial tests pass.
+
+### REQ-MH-010 Private CA Trust
+
+Only Vault's public CA certificate may be copied into the `meta-harness` namespace. Vault CA
+private keys and server private keys must remain in `vault`.
+
 ## Operational Requirements
 
 - Create runtime, registry, chart repository, and OIDC secrets with
@@ -49,3 +72,5 @@ The instance must be exposed through Traefik and cert-manager at
 - Preserve `readOnlyRootFilesystem`; writable `/tmp` must come from chart-managed scratch
   volumes rather than weakening the container security context.
 - Do not treat development database or workspace volumes as production-grade HA storage.
+- Keep the development Vault sealed-state recovery material in the approved password manager;
+  never expose it to Meta Harness.

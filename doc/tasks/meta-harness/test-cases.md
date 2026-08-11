@@ -65,3 +65,44 @@ against a throwaway workspace.
 
 Expected result: HTTPS is valid, the UI loads, the node is connected, and the operation is
 routed over the node channel.
+
+## Development Vault Checks
+
+### TC-MH-100 Role-Based Render
+
+Render `apps/meta-harness` after the Vault integration change.
+
+Expected result: chart `0.3.1` renders a dedicated
+`meta-harness-workspace-broker` ServiceAccount, projected `vault-identity` token with audience
+`vault`, Vault CA mount, `authRole=meta-harness-workspace-broker-dev`, and no static Vault token
+Secret or `pushCredentialReference`.
+
+### TC-MH-110 Kubernetes Login
+
+Resolve the allowlisted synthetic reference and inspect the persistent Vault audit log.
+
+Expected result: resolution succeeds and the audit log records
+`auth/kubernetes/login` for role `meta-harness-workspace-broker-dev`.
+
+### TC-MH-120 Exact-Path Policy
+
+Test the synthetic path, a sibling path, and mount listing with the broker-issued policy.
+
+Expected result: only `meta-harness-dev/data/tests/credential-resolve` is readable; sibling
+paths and mount listing are denied.
+
+### TC-MH-130 Credential Target Enforcement
+
+Call `/credentials/resolve` with the valid synthetic record, then change the host, repository,
+scope, and reference independently.
+
+Expected result: the exact synthetic request succeeds; every altered request fails closed and
+no response or log exposes the test secret.
+
+### TC-MH-140 Existing Workload Regression
+
+After reconciliation, verify Flux, all Meta Harness pods, HTTPS, OIDC routing, local profiles,
+node connectivity, and the approved `git.commit` flow.
+
+Expected result: existing behavior remains healthy. Git push remains disabled because no push
+credential reference is configured.

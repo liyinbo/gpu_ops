@@ -9,7 +9,8 @@
 
 ## Phase 2: Meta Harness Integration
 
-- [ ] Define a development-only KV mount and least-privilege policy.
+- [x] Define the development-only KV mount, synthetic validation record, and least-privilege
+  policy in the Meta Harness integration documentation.
 - [ ] Configure same-cluster Kubernetes authentication for the workspace broker.
 - [ ] Upgrade Meta Harness to a chart supporting role-based Vault authentication.
 - [ ] Resolve a non-production test reference end to end.

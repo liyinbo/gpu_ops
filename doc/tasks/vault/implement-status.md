@@ -16,6 +16,8 @@ default-deny networking permitting API access only from `meta-harness`.
 - Keep initialization material outside Git and outside the repository.
 - Defer Meta Harness authentication, policies, and credential ingestion until Vault itself is
   deployed and healthy.
+- Use the staged integration in `doc/tasks/meta-harness/runbooks/vault-integration.md`: first
+  resolve one synthetic record through Kubernetes auth, with no push credential configured.
 
 ## Validation
 

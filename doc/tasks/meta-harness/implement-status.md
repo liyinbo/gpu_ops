@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Date: 2026-08-10
+Date: 2026-08-11
 
 The development instance is healthy on Meta Harness chart `0.3.0` and image `a1e8cf7` with
 shared-provider OIDC enabled. The matching Authentik provider and development callback are
@@ -51,6 +51,10 @@ remains enabled as the recovery path.
 - Complete one interactive Authentik login/callback with an operator identity; automated
   validation confirmed discovery and the authorization redirect but did not submit credentials.
 - Verify the previously failing approved `git.commit` workflow.
+- Implement the same-cluster development Vault integration described in
+  `doc/tasks/meta-harness/runbooks/vault-integration.md`. Vault is healthy, but Meta Harness
+  currently has no Vault environment, identity volume, CA mount, reference allowlist, or push
+  credential reference.
 
 ## Risks
 
@@ -58,3 +62,7 @@ remains enabled as the recovery path.
   intentionally retained as a recovery path.
 - The development PostgreSQL and node workspace claims use single-node `local-path` storage.
 - Chart `0.2.2` was published twice from different trees and must not be selected again.
+- A healthy workspace-broker pod does not prove Vault access; the broker constructs its Vault
+  client per request, so `/credentials/resolve` and Vault audit evidence are required.
+- Enabling `pushCredentialReference` during initial integration would expand the change from
+  synthetic resolution testing into live Git credential use and is explicitly deferred.

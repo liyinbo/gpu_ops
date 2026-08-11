@@ -32,3 +32,20 @@
 - [x] Validate Flux readiness, HTTPS, PostgreSQL readiness, node readiness, and authentication
   routing on the live cluster.
 - [ ] Re-run the full approved Git workflow on the live cluster.
+
+## Phase 5: Development Vault Integration
+
+- [x] Deploy a separate, internal-only development Vault in the GPU cluster.
+- [ ] Add persistent Vault audit storage and enable the file audit device.
+- [ ] Enable a `meta-harness-dev/` KV v2 mount and the same-cluster `kubernetes/` auth mount.
+- [ ] Add a read-only policy for `meta-harness-dev/data/tests/credential-resolve` and bind it
+  to `meta-harness/meta-harness-workspace-broker` with audience `vault`.
+- [ ] Copy only `ca.crt` into an out-of-band `meta-harness-vault-ca` Secret.
+- [ ] Upgrade Meta Harness to chart `0.3.1` while keeping image `a1e8cf7`.
+- [ ] Enable role-based Vault configuration without a static token or push credential.
+- [ ] Preload and resolve a synthetic test record, verify Kubernetes login in the audit log,
+  and prove wrong target, wrong scope, unknown reference, and sibling-path access fail closed.
+- [ ] Remove the obsolete cross-cluster production-Vault handoff after preserving its security
+  decision in the task records.
+
+Implementation handoff: `doc/tasks/meta-harness/vault-integration-goal.md`.
