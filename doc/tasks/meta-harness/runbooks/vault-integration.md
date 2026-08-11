@@ -11,6 +11,9 @@ reachable only through ClusterIP services. Meta Harness is healthy on chart `0.3
 `a1e8cf7`, with no Vault configuration. Chart `0.3.1` is published and adds the configurable
 Kubernetes auth mount; use it while retaining image `a1e8cf7`.
 
+Post-integration note (2026-08-11): image `68904ca` superseded `a1e8cf7` to complete the
+browser Authentik handoff. It does not change the Vault values or credential boundary below.
+
 ## Stage 1: Persistent Audit Storage
 
 Create a separately managed 1 GiB `vault-audit` PVC on `vault-local`, then add that existing

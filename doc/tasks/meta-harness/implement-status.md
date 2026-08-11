@@ -4,7 +4,7 @@
 
 Date: 2026-08-11
 
-The development instance is healthy on Meta Harness chart `0.3.1` and image `a1e8cf7` with
+The development instance is healthy on Meta Harness chart `0.3.1` and image `68904ca` with
 same-cluster development Vault credential resolution live. The broker authenticates with its
 projected Kubernetes identity, can resolve only the synthetic test record, and has no static
 Vault token or push credential reference. Shared Authentik OIDC and local-profile recovery
@@ -32,7 +32,7 @@ remain healthy.
   mount, file audit device, Kubernetes auth configuration, and broker role.
 - Copied only the public `ca.crt` from `vault/vault-server-tls` into the out-of-band
   `meta-harness/meta-harness-vault-ca` Secret; its data contains only the `ca.crt` key.
-- Reconciled chart `0.3.1` values with image `a1e8cf7`, the dedicated broker identity,
+- Reconciled chart `0.3.1` values with image `68904ca`, the dedicated broker identity,
   `authRole=meta-harness-workspace-broker-dev`, and only the synthetic reference allowlist.
   No static Vault token, push credential reference, or real Git credential is configured.
 - Configured Kubernetes auth to load the rotating reviewer token and CA directly from the
@@ -51,6 +51,11 @@ remain healthy.
 - Removed the completed integration handoff prompt. The production-Vault isolation decision
   remains in `requirements.md` and the integration runbook; no production Vault material was
   accessed or copied.
+- Verified the live Authentik provider blueprint has the exact development callback and client
+  ID, and its client secret matches the GPU-cluster OIDC Secret without printing either value.
+- Upgraded to image `68904ca`, which exposes the configured Authentik sign-in action in the SPA
+  and redirects a successful authorization-code callback to `/app/`; local profiles remain the
+  recovery path.
 
 ## Validation
 
@@ -89,7 +94,7 @@ remain healthy.
   without printing it. Wrong host, repository, scope, unknown reference, and sibling reference
   each returned HTTP 403 with no credential fields.
 - Runtime broker spec: dedicated ServiceAccount, audience `vault`, CA-only Secret, exact single
-  reference allowlist, image `a1e8cf7`, and no static token or push credential environment.
+  reference allowlist, image `68904ca`, and no static token or push credential environment.
 - All seven Meta Harness pods: `Running`, ready, and zero restarts; application HTTPS returned
   HTTP 200; OIDC returned the exact Authentik development callback; local profile auth returned
   HTTP 200; node `cluster` reported connected with read, patch, and commit tools.

@@ -11,7 +11,7 @@ kubectl kustomize apps/meta-harness >/tmp/gpu-ops-meta-harness-render.yaml
 ```
 
 Expected result: all Meta Harness manifests render without errors and the HelmRelease pins
-chart `0.3.1` with image `a1e8cf7`, the expected OIDC settings, and the role-based Vault
+chart `0.3.1` with image `68904ca`, the expected OIDC settings, and the role-based Vault
 configuration.
 
 ### TC-MH-002 Bootstrap Script Syntax
@@ -114,7 +114,7 @@ credential reference is configured.
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
-  and `scripts/run-static-checks.sh` passed; the render pins chart `0.3.1`, image `a1e8cf7`,
+  and `scripts/run-static-checks.sh` passed; the render pins chart `0.3.1`, image `68904ca`,
   role identity, exact allowlist, and no static or push credential.
 - TC-MH-010: Flux source and every Kustomization were `Ready=True` at
   `main@sha1:dfb01ea5`; Helm revision 5 was ready on chart `0.3.1`.

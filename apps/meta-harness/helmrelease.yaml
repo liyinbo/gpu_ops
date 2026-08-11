@@ -17,7 +17,7 @@ spec:
   values:
     image:
       repository: forgejo.home.hope-leniency.com/limbo/meta-harness
-      tag: "a1e8cf7"
+      tag: "68904ca"
     imagePullSecrets:
       - name: forgejo-registry
 

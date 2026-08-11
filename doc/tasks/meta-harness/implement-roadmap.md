@@ -24,6 +24,8 @@
   `storage_server_ops`, and bootstrap the client secret in the GPU cluster.
 - [x] Reconcile the release and verify OIDC discovery/login routing and local-profile
   recovery.
+- [x] Expose configured Authentik sign-in in the browser and redirect a successful OIDC
+  callback to the authenticated application shell.
 - [ ] Complete one interactive Authentik login and callback with an operator identity.
 
 ## Phase 4: Validation and Operations
@@ -44,7 +46,8 @@
   `meta-harness-dev/data/tests/credential-resolve`, to be applied and bound
   to `meta-harness/meta-harness-workspace-broker` with audience `vault`.
 - [x] Copy only `ca.crt` into an out-of-band `meta-harness-vault-ca` Secret.
-- [x] Configure Meta Harness chart `0.3.1` while keeping image `a1e8cf7`.
+- [x] Configure Meta Harness chart `0.3.1`; initially retain image `a1e8cf7`, then deploy
+  image `68904ca` to complete the browser Authentik handoff.
 - [x] Configure role-based Vault access without a static token or push credential.
 - [x] Preload and resolve a synthetic test record, verify Kubernetes login in the audit log,
   and prove wrong target, wrong scope, unknown reference, and sibling-path access fail closed.
