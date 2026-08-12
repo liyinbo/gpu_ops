@@ -163,6 +163,9 @@ The script verifies Vault's in-pod callback listener before creating the localho
 port-forward. Do not reorder those steps: `kubectl port-forward` exits if a browser connection
 arrives before the remote listener exists. Never paste the printed authorization URL or its
 callback URL into chat or logs; both contain short-lived login state.
+Each invocation records its in-pod listener PID under a unique `/tmp` file and removes only
+that verified Meta Harness OIDC process on exit. If port 8250 is already occupied, stop the
+earlier invocation instead of killing an unverified process.
 
 - `meta-harness-credential-ingest`: create/update only on
   `meta-harness-dev/data/providers/claude`.

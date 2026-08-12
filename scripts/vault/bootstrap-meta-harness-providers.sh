@@ -9,8 +9,22 @@ token_cache=/home/vault/.vault-token
 port_forward_pid=
 oidc_login_pid=
 port_forward_log=
+remote_oidc_pid_file="/tmp/meta-harness-vault-oidc.$$.pid"
 
 cleanup() {
+  kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- sh -c '
+    pid_file=$1
+    if test -r "$pid_file"; then
+      pid=$(sed -n "1p" "$pid_file")
+      cmd=$(tr "\000" " " <"/proc/$pid/cmdline" 2>/dev/null || true)
+      case "$cmd" in
+        *"vault login"*"method=oidc"*"role=meta-harness-operator"*)
+          kill "$pid" >/dev/null 2>&1 || true
+          ;;
+      esac
+      rm -f "$pid_file"
+    fi
+  ' sh "$remote_oidc_pid_file" >/dev/null 2>&1 || true
   if test -n "$oidc_login_pid"; then
     kill "$oidc_login_pid" >/dev/null 2>&1 || true
     wait "$oidc_login_pid" >/dev/null 2>&1 || true
@@ -34,8 +48,20 @@ if ! test -t 0 || ! test -t 1; then
   exit 1
 fi
 
+if kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
+  awk '$2 ~ /:203A$/ && $4 == "0A" {found=1} END {exit !found}' \
+    /proc/net/tcp /proc/net/tcp6 >/dev/null 2>&1; then
+  echo "Port 8250 is already in use inside vault-0; stop the earlier OIDC login first" >&2
+  exit 1
+fi
+
 echo "Open the Authentik URL printed below and sign in as a Vault GPU Operators member."
-kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
+kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- sh -c '
+  pid_file=$1
+  shift
+  printf "%s\n" "$$" >"$pid_file"
+  exec "$@"
+' sh "$remote_oidc_pid_file" \
   vault login -no-print -method=oidc -path=oidc \
     role=meta-harness-operator \
     port=8250 \
@@ -95,6 +121,8 @@ fi
 
 wait "$oidc_login_pid"
 oidc_login_pid=
+kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
+  rm -f "$remote_oidc_pid_file"
 
 kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
   vault policy write meta-harness-credential-ingest - <"$ingest_policy_file"

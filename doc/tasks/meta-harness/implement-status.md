@@ -163,6 +163,10 @@ one-time OIDC bootstrap instead of routine provider administration.
   before Vault's in-pod callback listener binds. The routine bootstrap now starts and verifies
   the Vault listener first, then starts and verifies the local tunnel, retains sanitized
   forwarding diagnostics on failure, and removes its temporary log on exit.
+- Cancelling a later attempt exposed that terminating the local `kubectl exec` process does not
+  reliably terminate Vault's callback listener in the pod. The script now writes a unique
+  per-invocation remote PID file, verifies the command identity before killing that exact
+  process during cleanup, removes the PID file, and refuses to overwrite an unrelated listener.
 
 ## Open Items
 
