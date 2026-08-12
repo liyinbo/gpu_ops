@@ -205,6 +205,8 @@ provider settings using only allowlisted endpoints, while an adult cannot see th
   411 Python tests (23 expected skips), including profile-specific Brain provider UI tests.
   Authenticated live browser comparison remains open because no operator session credential was
   available to this deployment run.
-- TC-MH-180 endpoint extension: the desired allowlist contains exactly the existing Anthropic
-  origin and operator-approved `https://api2.limtok.net`; live deployment propagation must be
-  reconfirmed after reconciliation without exposing a provider credential.
+- TC-MH-180 endpoint extension: Helm revision 10 is ready and live API and worker environments
+  contain exactly the existing Anthropic origin and operator-approved
+  `https://api2.limtok.net`. All eight pods are ready with zero restarts, runtime configuration
+  remains healthy, provider-role holders remain ingest and worker only, and no provider-key
+  environment was exposed.

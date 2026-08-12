@@ -196,6 +196,8 @@ steps; no OIDC session or provider key was bypassed or synthesized for deploymen
 - Added the operator-approved `https://api2.limtok.net` origin to the exact endpoint allowlist
   on 2026-08-12. The provider key, Vault references, identities, policies, and roles remain
   unchanged; choosing the endpoint and matching protocol remains a Brain administrator action.
+  Helm revision 10 is ready, API and worker contain the exact two-entry normalized list, all
+  eight pods are ready with zero restarts, and runtime provider configuration remains healthy.
 
 ## Open Items
 
