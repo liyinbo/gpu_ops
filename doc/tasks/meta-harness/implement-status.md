@@ -70,8 +70,8 @@ one-time OIDC bootstrap instead of routine provider administration.
   `meta-harness-dev/data/providers/claude`.
 - Added a separate idempotent hidden-prompt provider bootstrap for the two Kubernetes auth
   roles, each bound to its own rendered ServiceAccount with audience `vault`.
-- Added a no-secret public PKCE Authentik client and group-gated application in
-  `storage_server_ops`, plus a Vault role that independently requires the exact
+- Added a confidential Authentik client with a SOPS-encrypted generated client secret and a
+  group-gated application in `storage_server_ops`, plus a Vault role that independently requires the exact
   `Vault GPU Operators` group claim.
 - Added a one-time hidden-prompt OIDC bootstrap and an exact operator policy limited to the two
   provider policy documents and two provider Kubernetes auth roles. The routine provider
@@ -148,8 +148,11 @@ one-time OIDC bootstrap instead of routine provider administration.
   Vault NetworkPolicy contains only the added `192.168.8.20/32` TCP/443 Authentik rule, and a
   request from `vault-0` reached the exact per-provider OIDC issuer. Storage-cluster Flux
   reconciled revision `cbfe7782`; Authentik Helm revision 5 is ready, and live model inspection
-  confirmed the public client, single strict callback, non-superuser group, and enabled group
-  binding. Group membership and the root-authorized Vault OIDC bootstrap remain open.
+  confirmed the initial public client, single strict callback, non-superuser group, and enabled
+  group binding. Vault 2.0.3 subsequently rejected OIDC configuration without a client secret;
+  desired state and bootstrap were corrected to stream a SOPS-held confidential-client secret
+  directly from Authentik into Vault. Group membership and the corrected root-authorized Vault
+  OIDC bootstrap remain open.
 
 ## Open Items
 

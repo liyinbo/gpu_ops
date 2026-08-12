@@ -139,10 +139,12 @@ scripts/vault/bootstrap-operator-oidc.sh
 ```
 
 This is the only step that accepts the Vault initial root token. Enter it only through the
-script's hidden TTY prompt. The script enables the `oidc/` auth mount, configures the public
-`gpu-vault-operator` client, and creates a group-bound role whose policy can manage only the
+script's hidden TTY prompt. The script enables the `oidc/` auth mount, streams the generated
+client secret from the Authentik blueprint Secret directly into Vault through stdin, and
+creates a group-bound role whose policy can manage only the
 two provider policy documents and two provider Kubernetes roles. It removes the root CLI
-token cache when it exits.
+token cache when it exits. It does not access the storage-cluster Vault or copy any of its
+material; the only cross-cluster value is this dedicated OIDC client secret.
 
 For routine provider policy and role reconciliation, run:
 

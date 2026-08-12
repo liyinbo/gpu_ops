@@ -3,6 +3,8 @@ set -eu
 
 repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 kubeconfig=${KUBECONFIG:-"${repo_dir}/kubeconfig-gpu-cluster.yaml"}
+storage_repo_dir=$(CDPATH= cd -- "${repo_dir}/../storage_server_ops" && pwd)
+authentik_kubeconfig=${AUTHENTIK_KUBECONFIG:-"${storage_repo_dir}/kubeconfig.yaml"}
 operator_policy_file="${repo_dir}/apps/vault/policies/meta-harness-operator.hcl"
 token_cache=/home/vault/.vault-token
 
@@ -49,11 +51,17 @@ fi
 kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
   vault policy write meta-harness-operator - <"$operator_policy_file"
 
-kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
-  vault write auth/oidc/config \
-    oidc_discovery_url=https://auth.home.hope-leniency.com/application/o/gpu-vault-operator/ \
-    oidc_client_id=gpu-vault-operator \
-    default_role=meta-harness-operator
+kubectl --kubeconfig "$authentik_kubeconfig" -n authentik \
+  get secret authentik-vault-operator-blueprint -o json | \
+  jq -r '.data["client-secret"]' | base64 -d | \
+  jq -Rs '{
+    oidc_discovery_url: "https://auth.home.hope-leniency.com/application/o/gpu-vault-operator/",
+    oidc_client_id: "gpu-vault-operator",
+    oidc_client_secret: .,
+    default_role: "meta-harness-operator"
+  }' | \
+  kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
+    vault write auth/oidc/config -
 
 kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
   vault write auth/oidc/role/meta-harness-operator \

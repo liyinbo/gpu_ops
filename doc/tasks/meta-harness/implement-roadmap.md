@@ -70,7 +70,7 @@
 
 ## Phase 7: Restricted Operator OIDC
 
-- [x] Define a public PKCE Authentik application with one exact localhost callback and a
+- [x] Define a confidential Authentik application with one exact localhost callback and a
   dedicated `Vault GPU Operators` group.
 - [x] Add an exact Vault operator policy and an idempotent one-time root bootstrap for the
   OIDC auth mount and group-bound role.

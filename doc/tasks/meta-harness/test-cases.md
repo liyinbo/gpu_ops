@@ -132,8 +132,10 @@ prints or persists the key.
 
 ### TC-MH-170 Restricted Operator OIDC
 
-Confirm the Authentik client is public, has only
+Confirm the Authentik client is confidential, has only
 `http://localhost:8250/oidc/callback`, and gates the application on `Vault GPU Operators`.
+Confirm its generated secret is SOPS-encrypted and the bootstrap streams it without arguments,
+environment variables, output, a repository plaintext, or a GPU-cluster Kubernetes Secret.
 Log in through `scripts/vault/bootstrap-meta-harness-providers.sh` as a group member.
 
 Expected result: Vault issues a token with only `meta-harness-operator`; it can update and read
