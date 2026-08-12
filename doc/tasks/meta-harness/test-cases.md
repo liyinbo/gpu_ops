@@ -222,13 +222,16 @@ path. No provider-key or development-store environment exists anywhere in the re
   `https://api2.limtok.net`. All eight pods are ready with zero restarts, runtime configuration
   remains healthy, provider-role holders remain ingest and worker only, and no provider-key
   environment was exposed.
-- TC-MH-190 partial: Forgejo served chart/image `0.3.5` with a linux/amd64 runnable manifest,
+- TC-MH-190: Forgejo served chart/image `0.3.5` with a linux/amd64 runnable manifest,
   default worker mode, and one-second polling. Flux reconciled Helm revision 11; runtime reports
   `worker`, only API receives the mode, API has no provider role/token, roles remain ingest and
   worker only, and no provider-key or development-store environment exists. A rolled-back API
   probe stayed pending, unclaimed, and unfailed when execution was refused. A worker-process
   resolution probe succeeded without printing the value, and retained Vault audit metadata
-  records the worker Kubernetes login and exact provider-path read. The full application gate
-  passed with 177 frontend and 425 Python tests (23 expected skips). A fresh authenticated
-  browser message is still required to prove the real run row is claimed by the pod-derived
-  worker id and receives the provider response.
+  records the worker Kubernetes login and exact provider-path read. Browser run
+  `53d41010-f40b-48f2-9342-0ac82d3f3243` was then claimed by the pod-derived worker id, repeated
+  the successful Vault login/read, and reached `https://api2.limtok.net/v1/messages`; it was
+  never claimed by `inline-worker`. The provider returned HTTP 403
+  `SUBSCRIPTION_NOT_FOUND`, which leaves the separate real-answer acceptance item open but does
+  not invalidate the worker-execution boundary. The full application gate passed with 177
+  frontend and 425 Python tests (23 expected skips).

@@ -18,9 +18,10 @@ administrator/adult browser comparison and the real-provider key/grant/run proof
 steps; no OIDC session or provider key was bypassed or synthesized for deployment validation.
 Phase 31 now enforces worker-only run execution: runtime reports `worker`, the API refuses
 execution while leaving runs pending and unclaimed, and the API still holds no provider Vault
-identity. A worker-side resolution probe succeeded and produced the expected retained Vault
-audit metadata without exposing the credential. A fresh authenticated browser message remains
-needed to capture the final real-run worker claim and provider response.
+identity. A post-upgrade browser message was claimed by the real worker, which authenticated to
+Vault, read the exact provider record, and reached the configured Limtok endpoint without
+exposing the credential. The provider returned HTTP 403 `SUBSCRIPTION_NOT_FOUND`, so Phase 31
+is proven while a successful provider answer remains blocked on external subscription state.
 
 ## Completed
 
@@ -215,6 +216,13 @@ needed to capture the final real-run worker claim and provider response.
   worker-process probe resolved the existing provider reference without printing it. The
   retained audit log records a successful `meta-harness-worker` Kubernetes login followed by
   an exact read of `meta-harness-dev/data/providers/claude`.
+- Browser-created run `53d41010-f40b-48f2-9342-0ac82d3f3243` was claimed on 2026-08-12 by
+  `meta-harness-worker-686589579b-jvztj:meta-harness-worker-686589579b-jvztj`, never
+  `inline-worker`. Its pinned provider revision 2 retained protocol `anthropic-messages`, base
+  URL `https://api2.limtok.net`, and the opaque Vault reference. Worker logs and retained Vault
+  audit metadata show a successful Kubernetes login, exact provider-path read, and outbound
+  request to `/v1/messages`. The external service returned HTTP 403
+  `SUBSCRIPTION_NOT_FOUND`; no credential value was inspected or printed.
 - Added the operator-approved `https://api2.limtok.net` origin to the exact endpoint allowlist
   on 2026-08-12. The provider key, Vault references, identities, policies, and roles remain
   unchanged; choosing the endpoint and matching protocol remains a Brain administrator action.

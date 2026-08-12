@@ -97,5 +97,5 @@
 - [x] Bump only the HelmRelease chart and image pins; retain the default worker execution mode.
 - [x] Reconcile `0.3.5` and verify API refusal, identity separation, runtime mode, and absence
   of provider credentials or development-store configuration.
-- [ ] Send a new provider message and prove the real worker claim plus its Kubernetes login and
+- [x] Send a new provider message and prove the real worker claim plus its Kubernetes login and
   exact provider-path read in the retained Vault audit log.
