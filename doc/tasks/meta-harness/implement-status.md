@@ -153,6 +153,11 @@ one-time OIDC bootstrap instead of routine provider administration.
   desired state and bootstrap were corrected to stream a SOPS-held confidential-client secret
   directly from Authentik into Vault. Group membership and the corrected root-authorized Vault
   OIDC bootstrap remain open.
+- The first corrected bootstrap run successfully wrote the confidential OIDC client
+  configuration, then Vault 2.0.3 rejected the role because the CLI encoded inline
+  `bound_claims` as a string. The role write now uses a typed JSON document over stdin so the
+  group claim is a map and redirect, scope, and policy fields remain arrays. The interrupted
+  run removed its root CLI token cache; completing the role remains open.
 
 ## Open Items
 

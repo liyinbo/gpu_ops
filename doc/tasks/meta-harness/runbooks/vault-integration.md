@@ -145,6 +145,8 @@ creates a group-bound role whose policy can manage only the
 two provider policy documents and two provider Kubernetes roles. It removes the root CLI
 token cache when it exits. It does not access the storage-cluster Vault or copy any of its
 material; the only cross-cluster value is this dedicated OIDC client secret.
+The role configuration is submitted as typed JSON through stdin; do not convert its
+`bound_claims` map or array fields back to inline CLI key/value arguments.
 
 For routine provider policy and role reconciliation, run:
 

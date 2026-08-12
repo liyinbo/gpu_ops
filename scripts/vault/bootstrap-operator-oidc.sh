@@ -63,19 +63,21 @@ kubectl --kubeconfig "$authentik_kubeconfig" -n authentik \
   kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
     vault write auth/oidc/config -
 
-kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
-  vault write auth/oidc/role/meta-harness-operator \
-    role_type=oidc \
-    user_claim=sub \
-    groups_claim=groups \
-    'bound_claims={"groups":["Vault GPU Operators"]}' \
-    allowed_redirect_uris=http://localhost:8250/oidc/callback \
-    oidc_scopes=profile,email \
-    token_policies=meta-harness-operator \
-    token_no_default_policy=true \
-    token_ttl=30m \
-    token_max_ttl=1h \
-    verbose_oidc_logging=false
+jq -n '{
+  role_type: "oidc",
+  user_claim: "sub",
+  groups_claim: "groups",
+  bound_claims: {groups: ["Vault GPU Operators"]},
+  allowed_redirect_uris: ["http://localhost:8250/oidc/callback"],
+  oidc_scopes: ["profile", "email"],
+  token_policies: ["meta-harness-operator"],
+  token_no_default_policy: true,
+  token_ttl: "30m",
+  token_max_ttl: "1h",
+  verbose_oidc_logging: false
+}' | \
+  kubectl --kubeconfig "$kubeconfig" -n vault exec -i vault-0 -- \
+    vault write auth/oidc/role/meta-harness-operator -
 
 kubectl --kubeconfig "$kubeconfig" -n vault exec vault-0 -- \
   vault read -format=json auth/oidc/role/meta-harness-operator | \
