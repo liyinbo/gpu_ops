@@ -57,5 +57,5 @@
   `flux-system` over trusted HTTPS.
 - [x] Prove an authenticated canary GitRepository produces the identical source artifact.
 - [x] Add an out-of-band credential bootstrap and point the managed source at Forgejo.
-- [ ] Reconcile every dependent Kustomization from Forgejo, verify stateful data/PVC continuity,
+- [x] Reconcile every dependent Kustomization from Forgejo, verify stateful data/PVC continuity,
   and remove the temporary canary source.

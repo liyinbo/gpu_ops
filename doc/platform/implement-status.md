@@ -6,11 +6,10 @@ Date: 2026-08-12
 
 The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, validates GPU scheduling with an NVIDIA runtime test pod, and provides a live Traefik plus cert-manager private HTTPS path for GPU workloads. NVIDIA GPU Operator is the selected GPU resource management layer.
 
-The Flux source migration from public GitHub to the private Forgejo clone is staged with a
-canary-first, no-workload-change procedure. The Forgejo `main` branch matches the active full
-commit, in-cluster DNS/TLS succeeds, and a credentialed canary produced the identical artifact
-digest while the GitHub source and all consumers remained ready. The out-of-band credential is
-present in `flux-system`; the managed source switch and post-switch continuity checks remain.
+Flux now reconciles from the private Forgejo clone through an out-of-band HTTPS credential.
+The migration used a canary-first, no-workload-change procedure: Forgejo matched the active
+full commit and artifact digest before the managed switch, then every consumer reconciled from
+Forgejo. StatefulSet identities, persistent claims, and PV bindings were unchanged.
 
 ## Completed
 
@@ -65,6 +64,8 @@ present in `flux-system`; the managed source switch and post-switch continuity c
   kernel upgrade and GPU Operator driver transition failure.
 - Added an idempotent hidden-input bootstrap for the private Forgejo Flux credential and staged
   the managed `gpu-ops` source URL/Secret reference change. No credential is committed.
+- Migrated the live `flux-system/gpu-ops` source to private Forgejo, reconciled all six child
+  Kustomizations, and removed the unreferenced canary source after continuity validation.
 
 ## Verified
 
@@ -112,6 +113,16 @@ present in `flux-system`; the managed source switch and post-switch continuity c
   commit `40900cf`; `flux-system` reached Forgejo health over trusted HTTPS; and the
   `gpu-ops-forgejo-canary` source was ready with the same commit and artifact digest as the
   active GitHub source. All six Kustomizations remained ready and all five PVCs remained bound.
+- Forgejo cutover on 2026-08-12: `flux-system/gpu-ops` fetched migration commit `f60a049`
+  from `https://forgejo.home.hope-leniency.com/limbo/gpu_ops.git` using
+  `gpu-ops-forgejo`; all six Kustomizations applied that revision and remained ready. A forced
+  second source fetch after the self-managed URL change also succeeded, proving the cluster no
+  longer depended on GitHub.
+- The Meta Harness node/PostgreSQL and Vault StatefulSet UIDs were identical before and after
+  cutover. All five PVC UIDs and PV bindings were identical and remained `Bound`; Vault stayed
+  initialized/unsealed, the node remained ready with one allocatable GPU, ClusterPolicy stayed
+  ready, Meta Harness returned its expected OIDC redirect, TTS returned HTTP 200, and the
+  production ClusterIssuer remained ready. No data-bearing resource was pruned or recreated.
 - GPU Operator ClusterPolicy is `ready`.
 - GPU Operator pods are healthy; node allocatable includes `nvidia.com/gpu: 1`.
 - NVIDIA runtime test pod completed and logged `NVIDIA-SMI 580.126.20`, `Driver Version: 580.126.20`, and `NVIDIA GeForce RTX 4090`.
@@ -138,6 +149,10 @@ present in `flux-system`; the managed source switch and post-switch continuity c
 - Validate `7.0.0-28-generic` with the operator-managed NVIDIA driver during a
   maintenance window before removing the temporary persistent GRUB selection
   of `6.17.0-35-generic`.
+- Replace the currently reused Forgejo PAT in `flux-system/gpu-ops-forgejo` with a dedicated
+  repository-read-only credential. Forgejo denied repository-scoped token creation through the
+  available API token, and its advertised SSH clone target is `localhost` with no reachable SSH
+  listener, so the existing authenticated HTTPS credential was used to complete the migration.
 
 ## Risks
 
