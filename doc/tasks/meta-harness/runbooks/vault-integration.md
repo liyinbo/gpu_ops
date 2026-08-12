@@ -201,3 +201,19 @@ a provider key or a new Secret. After rollout, confirm migration
 allowlist environment entries (API and worker), two provider Vault role entries (ingest and
 worker), and zero common provider-key environment names. Finally verify that the Brain provider
 section is visible to an administrator and absent for an adult profile.
+
+## Stage 8: Worker-Only Run Execution
+
+Chart `0.3.5` fixes the browser/API race that executed pending provider runs as
+`inline-worker` inside the API pod. Upgrade the chart and image together without adding
+`runExecutionMode`; its safe chart default is `worker`, and the chart sets the worker poll
+interval to one second. Never set this deployment to `inline` and never give the API a
+provider Vault role, projected provider token, credential, or development credential store.
+
+After rollout, verify `/runtime-info` reports `worker`, the API refuses the internal process
+route without claiming or failing a pending run, and only ingest and worker hold provider
+Vault roles. Submit a new message through the authenticated browser, then confirm the run's
+`claimed_by` is the worker pod-derived id and is not `inline-worker`. In the retained audit
+log, confirm the worker's successful Kubernetes login and exact read of
+`meta-harness-dev/data/providers/claude`; inspect only request metadata and never the response
+body or provider secret. The ingest identity must retain create/update-only behavior.

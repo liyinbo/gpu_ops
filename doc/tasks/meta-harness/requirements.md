@@ -95,6 +95,15 @@ to a new base URL. Provider keys remain write-only through the Vault tool; no ke
 seed, endpoint allowlist, Git, SOPS, or a Kubernetes Secret. Adult profiles must not see the
 administrator provider controls.
 
+### REQ-MH-014 Worker-Only Run Execution
+
+In the chart deployment, browser-created runs must remain pending until the dedicated worker
+claims them. The API must refuse inline execution and must not receive a provider Vault role,
+projected provider identity, provider credential, or development credential store. Provider
+credential resolution and final endpoint-policy validation must occur only in the worker under
+its read-only same-cluster Vault identity. Inline execution is restricted to explicit
+single-process development and test deployments and must never be enabled here.
+
 ## Operational Requirements
 
 - Create runtime, registry, chart repository, and OIDC secrets with

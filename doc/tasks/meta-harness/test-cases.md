@@ -155,6 +155,18 @@ the normalized endpoint allowlist; only ingest and worker receive provider Vault
 no provider key environment name or Secret is rendered. The administrator can edit non-secret
 provider settings using only allowlisted endpoints, while an adult cannot see that section.
 
+### TC-MH-190 Worker-Only Provider Execution
+
+Deploy chart/image `0.3.5` without setting `runExecutionMode`, inspect the rendered and live
+workloads, then submit a new message to the existing granted `claude-live` session.
+
+Expected result: runtime reports `worker`; the API is the sole recipient of the execution-mode
+environment and refuses inline processing without mutating a pending run. The API has no
+provider Vault role or projected provider identity. The dedicated worker claims the new run
+under its pod-derived worker id, never `inline-worker`, then Vault audit records its successful
+Kubernetes login and read of `meta-harness-dev/data/providers/claude`. Ingest never reads the
+path. No provider-key or development-store environment exists anywhere in the release.
+
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
