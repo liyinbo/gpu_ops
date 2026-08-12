@@ -46,6 +46,15 @@ The repo must include test manifests and commands that verify node readiness, GP
 
 The GPU platform must provide a Traefik ingress path and cert-manager DNS-01 certificate automation for private `*.home.hope-leniency.com` GPU workloads. The default issuer name is `letsencrypt-prod`. DNS provider credentials must be created out of band as Kubernetes Secrets or encrypted with an approved secret mechanism; plaintext DNS API credentials must not be committed.
 
+### REQ-GPU-009 Private Forgejo Flux Source
+
+Flux must reconcile `main` from the private Forgejo repository
+`https://forgejo.home.hope-leniency.com/limbo/gpu_ops.git`. Its HTTPS read credential must be
+created out of band in `flux-system`, must not be committed, and should be restricted to
+repository read access. A source migration must prove the new repository has the exact active
+revision and artifact content before switching consumers. Changing source location must not
+change workload manifests, prune persistent claims, or recreate stateful workloads.
+
 ## Operational Requirements
 
 - Do not store real tokens, private keys, kubeconfigs, or host-specific secrets in Git.
@@ -58,6 +67,8 @@ The GPU platform must provide a Traefik ingress path and cert-manager DNS-01 cer
 - Run manifest rendering checks before committing GitOps changes.
 - Document known blockers and incomplete work in `doc/platform/implement-status.md`.
 - Keep DNS API credentials for cert-manager outside plaintext Git.
+- Keep the private Forgejo Flux credential outside plaintext Git and rotate it independently
+  from the repository manifests.
 
 ## Out Of Scope
 

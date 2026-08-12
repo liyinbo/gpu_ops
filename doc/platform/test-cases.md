@@ -48,7 +48,21 @@ Command:
 uv run ansible-playbook -i inventory/gpu-cluster/hosts.yml playbooks/04-flux.yml --vault-password-file=.vault_pass
 ```
 
-Expected result: Flux controllers are installed or confirmed present, and `clusters/gpu-cluster` is applied to create/update the GitHub-backed GitRepository/Kustomization plus the GPU Operator HelmRepository and HelmRelease.
+Expected result: Flux controllers are installed or confirmed present, and
+`clusters/gpu-cluster` is applied to create/update the Forgejo-backed
+GitRepository/Kustomization plus the GPU Operator HelmRepository and HelmRelease. The
+out-of-band `flux-system/gpu-ops-forgejo` credential must exist first.
+
+### TC-GPU-007 Forgejo Source Migration
+
+Before switching, reconcile a credentialed canary GitRepository against the private Forgejo
+URL and compare it with `flux-system/gpu-ops`.
+
+Expected result: both sources are ready at the same full commit and artifact digest. After the
+managed switch, `gpu-ops` reports the Forgejo URL and Secret reference; every dependent
+Kustomization is ready at the Forgejo revision. StatefulSet UIDs and PVC/PV bindings remain
+unchanged, all bound claims remain bound, and no workload resource is pruned or recreated due
+to the source-location change. Removing the temporary canary does not affect consumers.
 
 ### TC-GPU-003 Cluster Kustomize Render
 

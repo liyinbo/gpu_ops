@@ -8,4 +8,6 @@ spec:
   interval: 1m
   ref:
     branch: main
-  url: https://github.com/liyinbo/gpu_ops.git
+  secretRef:
+    name: gpu-ops-forgejo
+  url: https://forgejo.home.hope-leniency.com/limbo/gpu_ops.git

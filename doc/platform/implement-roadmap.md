@@ -50,3 +50,12 @@
 - Move real tokens to Ansible Vault or SOPS.
 - Add host-specific inventory after hardware is known.
 - Add backup and recovery notes for kubeconfig, Flux state, and GPU workload state.
+
+## Phase 8: Forgejo Source Migration
+
+- [x] Verify the private Forgejo clone matches the active GitHub revision and is reachable from
+  `flux-system` over trusted HTTPS.
+- [x] Prove an authenticated canary GitRepository produces the identical source artifact.
+- [x] Add an out-of-band credential bootstrap and point the managed source at Forgejo.
+- [ ] Reconcile every dependent Kustomization from Forgejo, verify stateful data/PVC continuity,
+  and remove the temporary canary source.

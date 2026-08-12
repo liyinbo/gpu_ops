@@ -2,9 +2,15 @@
 
 ## Current Status
 
-Date: 2026-08-02
+Date: 2026-08-12
 
 The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.168.8.130`, installs k3s, installs Flux controllers, reconciles NVIDIA GPU Operator through Flux-compatible manifests, validates GPU scheduling with an NVIDIA runtime test pod, and provides a live Traefik plus cert-manager private HTTPS path for GPU workloads. NVIDIA GPU Operator is the selected GPU resource management layer.
+
+The Flux source migration from public GitHub to the private Forgejo clone is staged with a
+canary-first, no-workload-change procedure. The Forgejo `main` branch matches the active full
+commit, in-cluster DNS/TLS succeeds, and a credentialed canary produced the identical artifact
+digest while the GitHub source and all consumers remained ready. The out-of-band credential is
+present in `flux-system`; the managed source switch and post-switch continuity checks remain.
 
 ## Completed
 
@@ -57,6 +63,8 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
   reports when a reboot is still required.
 - Added `doc/platform/runbooks/gpu-driver-recovery.md` for recovery from a
   kernel upgrade and GPU Operator driver transition failure.
+- Added an idempotent hidden-input bootstrap for the private Forgejo Flux credential and staged
+  the managed `gpu-ops` source URL/Secret reference change. No credential is committed.
 
 ## Verified
 
@@ -100,6 +108,10 @@ The repository at `~/repo/gpu_ops` now provisions the single GPU node at `192.16
 - Flux controllers are running in `flux-system`.
 - GPU Operator HelmRepository is ready and HelmRelease reports `Helm install succeeded for release gpu-operator/gpu-operator.v1 with chart gpu-operator@v26.3.3`.
 - Flux `gpu-ops` GitRepository and `gpu-cluster` Kustomization reconcile from GitHub.
+- Forgejo migration preflight on 2026-08-12: the private non-mirror repository had exact active
+  commit `40900cf`; `flux-system` reached Forgejo health over trusted HTTPS; and the
+  `gpu-ops-forgejo-canary` source was ready with the same commit and artifact digest as the
+  active GitHub source. All six Kustomizations remained ready and all five PVCs remained bound.
 - GPU Operator ClusterPolicy is `ready`.
 - GPU Operator pods are healthy; node allocatable includes `nvidia.com/gpu: 1`.
 - NVIDIA runtime test pod completed and logged `NVIDIA-SMI 580.126.20`, `Driver Version: 580.126.20`, and `NVIDIA GeForce RTX 4090`.
