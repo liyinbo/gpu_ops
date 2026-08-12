@@ -158,6 +158,11 @@ one-time OIDC bootstrap instead of routine provider administration.
   `bound_claims` as a string. The role write now uses a typed JSON document over stdin so the
   group claim is a map and redirect, scope, and policy fields remain arrays. The interrupted
   run removed its root CLI token cache; completing the role remains open.
+- The first routine OIDC login reached Authentik and produced an authorization code, but the
+  local callback failed because `kubectl port-forward` can exit permanently when contacted
+  before Vault's in-pod callback listener binds. The routine bootstrap now starts and verifies
+  the Vault listener first, then starts and verifies the local tunnel, retains sanitized
+  forwarding diagnostics on failure, and removes its temporary log on exit.
 
 ## Open Items
 

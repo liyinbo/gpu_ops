@@ -159,6 +159,11 @@ URL. Complete browser sign-in as a `Vault GPU Operators` member. The resulting s
 Vault token is cached only inside `vault-0`, is used to configure the exact resources below,
 and is removed when the script exits:
 
+The script verifies Vault's in-pod callback listener before creating the localhost
+port-forward. Do not reorder those steps: `kubectl port-forward` exits if a browser connection
+arrives before the remote listener exists. Never paste the printed authorization URL or its
+callback URL into chat or logs; both contain short-lived login state.
+
 - `meta-harness-credential-ingest`: create/update only on
   `meta-harness-dev/data/providers/claude`.
 - `meta-harness-worker`: read only on the same exact path.
