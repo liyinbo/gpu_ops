@@ -172,3 +172,14 @@ policy names return permission denied. The short-lived CLI token cache is remove
 - TC-MH-140: all seven pods were running, ready, and at zero restarts; HTTPS, OIDC routing,
   local-auth denial, node connectivity, and the previously approved commit regression remained
   healthy. Git push remained disabled.
+
+## Evidence — 2026-08-12
+
+- TC-MH-150: the live cluster has separate `meta-harness-credential-ingest` and
+  `meta-harness-worker` ServiceAccounts and ready deployments on image `1f95e17`; Helm revision
+  8 is ready on chart `0.3.3`. The uploaded exact-path policy sources remain disjoint.
+- TC-MH-170 partial: Authentik issued an RS256-signed authorization-code callback for the
+  group-bound operator. Vault audit records show only `meta-harness-operator` on the successful
+  callback and on all four intended provider policy/role writes and subsequent role reads. The
+  token cache was absent after the script exited. Explicit negative capability probes remain to
+  be captured before TC-MH-170 is closed.

@@ -151,13 +151,13 @@ one-time OIDC bootstrap instead of routine provider administration.
   confirmed the initial public client, single strict callback, non-superuser group, and enabled
   group binding. Vault 2.0.3 subsequently rejected OIDC configuration without a client secret;
   desired state and bootstrap were corrected to stream a SOPS-held confidential-client secret
-  directly from Authentik into Vault. Group membership and the corrected root-authorized Vault
-  OIDC bootstrap remain open.
+  directly from Authentik into Vault. The intended operator was added to the group and the
+  root-authorized Vault OIDC bootstrap subsequently completed.
 - The first corrected bootstrap run successfully wrote the confidential OIDC client
   configuration, then Vault 2.0.3 rejected the role because the CLI encoded inline
   `bound_claims` as a string. The role write now uses a typed JSON document over stdin so the
   group claim is a map and redirect, scope, and policy fields remain arrays. The interrupted
-  run removed its root CLI token cache; completing the role remains open.
+  run removed its root CLI token cache; the typed role write subsequently completed.
 - The first routine OIDC login reached Authentik and produced an authorization code, but the
   local callback failed because `kubectl port-forward` can exit permanently when contacted
   before Vault's in-pod callback listener binds. The routine bootstrap now starts and verifies
@@ -167,15 +167,15 @@ one-time OIDC bootstrap instead of routine provider administration.
   reliably terminate Vault's callback listener in the pod. The script now writes a unique
   per-invocation remote PID file, verifies the command identity before killing that exact
   process during cleanup, removes the PID file, and refuses to overwrite an unrelated listener.
+- Restricted operator OIDC completed on 2026-08-12 through an SSH local-forward from the browser
+  host. The persistent audit log records a successful `auth/oidc/oidc/callback` that issued only
+  `meta-harness-operator`, followed by successful writes and reads of exactly the two provider
+  policies and two provider Kubernetes roles. The CLI token cache was absent after exit.
+  Both dedicated ServiceAccounts and deployments are live and ready on image `1f95e17`; Helm
+  release revision 8 is ready on chart `0.3.3`.
 
 ## Open Items
 
-- Complete one interactive Authentik login/callback with an operator identity; automated
-  validation confirmed discovery and the authorization redirect but did not submit credentials.
-- Add the intended operator to `Vault GPU Operators`, run
-  `scripts/vault/bootstrap-operator-oidc.sh` once with the root token through its hidden TTY
-  prompt, then apply the provider policies and roles through OIDC with
-  `scripts/vault/bootstrap-meta-harness-providers.sh` and reconcile chart `0.3.3`.
 - Store the Claude key through the Vault tool, approve its first-use grant, and prove a real
   response plus distinct ingest/worker entries in the persistent Vault audit log.
 
