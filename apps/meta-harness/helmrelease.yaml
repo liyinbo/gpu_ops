@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: meta-harness
-      version: "0.3.3"
+      version: "0.3.4"
       sourceRef:
         kind: HelmRepository
         name: meta-harness
@@ -17,7 +17,7 @@ spec:
   values:
     image:
       repository: forgejo.home.hope-leniency.com/limbo/meta-harness
-      tag: "1f95e17"
+      tag: "0.3.4"
     imagePullSecrets:
       - name: forgejo-registry
 
@@ -62,10 +62,13 @@ spec:
         mountPath: /var/run/meta-harness/vault-ca
 
     providers:
-      # Secret-free provider metadata. An administrator stores the key once through the
-      # Vault hand after deployment; only this opaque reference is committed.
-      configJson: |
+      # Insert-only, secret-free seed metadata. Brain administrators own later provider
+      # edits; the provider key remains write-only through the Vault hand.
+      seedJson: |
         [{"id":"claude-live","label":"Claude","protocol":"anthropic-messages","baseUrl":"https://api.anthropic.com","models":["claude-sonnet-5"],"credentialRef":"vault:providers/claude","default":true}]
+      # Exact destinations to which a Brain administrator may direct provider credentials.
+      endpointAllowlist:
+        - https://api.anthropic.com
       defaultEngine: claude-live
       mockEngineEnabled: false
       vault:

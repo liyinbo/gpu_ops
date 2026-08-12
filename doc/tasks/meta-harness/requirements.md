@@ -85,6 +85,16 @@ only the two provider policy documents and two provider Kubernetes auth roles; i
 administer secret mounts, records, auth configuration, the workspace-broker identity, or the
 storage-cluster Vault.
 
+### REQ-MH-013 Brain-Owned Provider Configuration
+
+Non-secret agent-provider configuration must be editable only by Meta Harness administrators
+through the Brain tool and persisted in the application database. GitOps may supply an
+insert-only seed but must not overwrite later administrator edits. The deployment must define
+an exact normalized HTTPS endpoint allowlist before an administrator can direct a provider key
+to a new base URL. Provider keys remain write-only through the Vault tool; no key may enter the
+seed, endpoint allowlist, Git, SOPS, or a Kubernetes Secret. Adult profiles must not see the
+administrator provider controls.
+
 ## Operational Requirements
 
 - Create runtime, registry, chart repository, and OIDC secrets with

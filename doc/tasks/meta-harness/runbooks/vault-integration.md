@@ -177,10 +177,27 @@ Validate the OIDC token cannot read `meta-harness-dev/data/*`, change `sys/mount
 `sys/auth`, change the workspace-broker policy or role, or create an unrelated policy. Do not
 use this identity with `storage_server_ops` Vault.
 
-After chart `0.3.3` reconciles, an administrator opens the Vault tool and stores the provider
+After chart `0.3.3` or later reconciles, an administrator opens the Vault tool and stores the provider
 key using provider id `claude-live` and reference path `providers/claude`. The key must be
 entered only in that password field, never in this runbook, a shell argument, environment
 variable, Git, SOPS, or a Kubernetes Secret. The first provider run raises the expected
 high-risk grant for `brain:claude-live`; approve it and retry. Confirm a real answer and the
 two distinct `auth/kubernetes/login` records in `/vault/audit/audit.log` without printing the
 key or Vault response bodies that contain it.
+
+## Stage 7: Brain-Owned Provider Configuration
+
+Chart `0.3.4` moves non-secret provider settings into a database registry managed through the
+administrator-only Brain tool. Rename `providers.configJson` to `providers.seedJson`; the same
+secret-free document is now explicitly insert-only and must never overwrite an administrator's
+later edit. Set `providers.endpointAllowlist` to the exact normalized HTTPS origins to which a
+provider credential may be sent. For this deployment, allow only
+`https://api.anthropic.com`.
+
+Do not change either provider Vault policy, either Kubernetes auth role, the workspace-broker
+identity, the provider reference allowlist, audience, CA Secret, or NetworkPolicies. Do not add
+a provider key or a new Secret. After rollout, confirm migration
+`0012_agent_provider_registry`, the seeded registry row and runtime default, two endpoint
+allowlist environment entries (API and worker), two provider Vault role entries (ingest and
+worker), and zero common provider-key environment names. Finally verify that the Brain provider
+section is visible to an administrator and absent for an adult profile.

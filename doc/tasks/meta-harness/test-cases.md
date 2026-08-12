@@ -143,6 +143,18 @@ the two provider policy documents and two provider Kubernetes roles. Attempts to
 records, mount or auth configuration, the workspace-broker policy or role, and unrelated
 policy names return permission denied. The short-lived CLI token cache is removed on exit.
 
+### TC-MH-180 Brain-Owned Provider Registry
+
+Render and reconcile chart `0.3.4`, then inspect migration logs, the provider registry,
+`/runtime-info`, and deployment environment names without printing any secret value. In a
+browser, compare the Brain tool as a Meta Harness administrator and as an adult profile.
+
+Expected result: schema `0012_agent_provider_registry` is applied; `claude-live` is seeded once
+with its existing reference and remains the real default; exactly the API and worker receive
+the normalized endpoint allowlist; only ingest and worker receive provider Vault auth roles;
+no provider key environment name or Secret is rendered. The administrator can edit non-secret
+provider settings using only allowlisted endpoints, while an adult cannot see that section.
+
 ## Evidence — 2026-08-11
 
 - TC-MH-001, TC-MH-002, TC-MH-003: `kubectl kustomize`, all bootstrap shell syntax checks,
