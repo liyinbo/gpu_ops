@@ -195,3 +195,13 @@ provider settings using only allowlisted endpoints, while an adult cannot see th
   callback and on all four intended provider policy/role writes and subsequent role reads. The
   token cache was absent after the script exited. Explicit negative capability probes remain to
   be captured before TC-MH-170 is closed.
+- TC-MH-180 partial: Forgejo served chart and image `0.3.4`, including a linux/amd64 runnable
+  image manifest and the new chart values. Flux reconciled Helm revision 9. Schema
+  `0012_agent_provider_registry`, the revision-1 default `claude-live` row, runtime default,
+  disabled mock engine, and null provider configuration error were verified live. Exactly API
+  and worker receive the endpoint allowlist; exactly ingest and worker receive provider Vault
+  roles; the API has neither provider role nor projected provider token; no common provider-key
+  environment or provider-key-named Secret exists. Application CI passed with 173 frontend and
+  411 Python tests (23 expected skips), including profile-specific Brain provider UI tests.
+  Authenticated live browser comparison remains open because no operator session credential was
+  available to this deployment run.

@@ -4,18 +4,18 @@
 
 Date: 2026-08-12
 
-The development instance is healthy on Meta Harness chart `0.3.1` and image `2bc9223` with
-same-cluster development Vault credential resolution live. The broker authenticates with its
-projected Kubernetes identity, can resolve only the synthetic test record, and has no static
-Vault token or push credential reference. Shared Authentik OIDC is the only browser sign-in
-method; local-profile authentication is disabled in both the UI and API.
+The development instance is healthy on Meta Harness chart and image `0.3.4`. Schema
+`0012_agent_provider_registry` is applied and the database contains the insert-only
+`claude-live` seed as revision 1 and the real default. Mock execution remains disabled. Only
+the API and worker receive the exact `https://api.anthropic.com` endpoint allowlist, and only
+the dedicated credential-ingest and worker identities receive provider Vault roles. No
+provider key environment field or Secret is deployed.
 
-The Phase 29 provider deployment configuration is prepared for chart `0.3.3` and image
-`1f95e17`. It declares `claude-live` as the real default, disables `mock`, and defines
-separate write-only ingest and read-only worker Vault identities. Applying the two new Vault
-policies and Kubernetes roles through restricted Authentik-backed Vault OIDC is the remaining
-prerequisite before reconciliation. The desired state now reserves the initial root token for
-one-time OIDC bootstrap instead of routine provider administration.
+Same-cluster development Vault integration and OIDC-only Authentik sign-in remain live. The
+workspace broker, both provider policies, both Kubernetes auth roles, audience, public CA,
+reference allowlists, and NetworkPolicies were unchanged by Phase 30. An authenticated
+administrator/adult browser comparison and the real-provider key/grant/run proof remain human
+steps; no OIDC session or provider key was bypassed or synthesized for deployment validation.
 
 ## Completed
 
@@ -77,6 +77,11 @@ one-time OIDC bootstrap instead of routine provider administration.
   provider policy documents and two provider Kubernetes auth roles. The routine provider
   bootstrap now uses interactive OIDC and removes its short-lived token cache.
 - Added Vault egress to only `192.168.8.20:443` for Authentik discovery and token exchange.
+- Published Meta Harness chart `0.3.4` and its matching linux/amd64 image from source commit
+  `f268aba`, then verified both artifacts from Forgejo before changing the HelmRelease.
+- Reconciled chart and image `0.3.4`, renamed the unchanged secret-free provider seed to
+  `providers.seedJson`, and allowlisted only `https://api.anthropic.com`. No Vault policy,
+  role, broker configuration, NetworkPolicy, Secret, or provider credential changed.
 
 ## Validation
 
@@ -173,11 +178,28 @@ one-time OIDC bootstrap instead of routine provider administration.
   policies and two provider Kubernetes roles. The CLI token cache was absent after exit.
   Both dedicated ServiceAccounts and deployments are live and ready on image `1f95e17`; Helm
   release revision 8 is ready on chart `0.3.3`.
+- Phase 30 source commit `f268aba`: `scripts/ci-check.sh` passed with 173 frontend tests and
+  411 Python tests (23 expected skips), production SPA build, schema/seed check, frontend
+  bundle validation, dependency audit, and Helm lint/checks.
+- `gpu_ops` static checks and `git diff --check` passed on 2026-08-12. Flux source and all six
+  Kustomizations reconciled `main@sha1:c7cf4e2`; Helm revision 9 is ready on chart `0.3.4`,
+  all eight Meta Harness pods are ready with zero restarts, HTTPS returns HTTP 200, OIDC login
+  returns HTTP 307, and disabled local auth returns HTTP 403.
+- Live Phase 30 data checks found schema versions `0011_credential_grants` and
+  `0012_agent_provider_registry`; the sole provider row is enabled `claude-live`, revision 1,
+  default, with the unchanged opaque Vault reference and Anthropic base URL. `/runtime-info`
+  reports `claude-live`, no mock engine, and no provider configuration error.
+- Deployment inspection found two endpoint-allowlist environments (API and worker), two
+  provider-role environments (credential-ingest and worker), zero common provider-key
+  environments, no provider-key-named Secret, and no provider Vault role or token projection
+  on the API deployment.
 
 ## Open Items
 
 - Store the Claude key through the Vault tool, approve its first-use grant, and prove a real
   response plus distinct ingest/worker entries in the persistent Vault audit log.
+- With authenticated sessions, confirm the Brain provider section and allowed endpoint choices
+  are visible to an administrator and absent for an adult profile.
 
 ## Risks
 
