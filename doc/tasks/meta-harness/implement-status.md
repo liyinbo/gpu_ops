@@ -4,7 +4,7 @@
 
 Date: 2026-08-12
 
-The development instance is healthy on Meta Harness chart and image `0.3.4`. Schema
+The development instance is healthy on Meta Harness chart and image `0.3.5`. Schema
 `0012_agent_provider_registry` is applied and the database contains the insert-only
 `claude-live` seed as revision 1 and the real default. Mock execution remains disabled. Only
 the API and worker receive the exact approved endpoint allowlist, and only
@@ -16,6 +16,11 @@ workspace broker, both provider policies, both Kubernetes auth roles, audience, 
 reference allowlists, and NetworkPolicies were unchanged by Phase 30. An authenticated
 administrator/adult browser comparison and the real-provider key/grant/run proof remain human
 steps; no OIDC session or provider key was bypassed or synthesized for deployment validation.
+Phase 31 now enforces worker-only run execution: runtime reports `worker`, the API refuses
+execution while leaving runs pending and unclaimed, and the API still holds no provider Vault
+identity. A worker-side resolution probe succeeded and produced the expected retained Vault
+audit metadata without exposing the credential. A fresh authenticated browser message remains
+needed to capture the final real-run worker claim and provider response.
 
 ## Completed
 
@@ -82,6 +87,9 @@ steps; no OIDC session or provider key was bypassed or synthesized for deploymen
 - Reconciled chart and image `0.3.4`, renamed the unchanged secret-free provider seed to
   `providers.seedJson`, and initially allowlisted `https://api.anthropic.com`. No Vault policy,
   role, broker configuration, NetworkPolicy, Secret, or provider credential changed.
+- Published and independently verified Meta Harness chart/image `0.3.5` from source commit
+  `8df5902`, then changed only the HelmRelease chart and image pins. No value, Vault resource,
+  workload identity, provider reference, endpoint allowlist, or credential changed.
 
 ## Validation
 
@@ -193,6 +201,20 @@ steps; no OIDC session or provider key was bypassed or synthesized for deploymen
   provider-role environments (credential-ingest and worker), zero common provider-key
   environments, no provider-key-named Secret, and no provider Vault role or token projection
   on the API deployment.
+- Phase 31 source commit `8df5902`: `scripts/ci-check.sh` passed with 177 frontend tests and
+  425 Python tests (23 expected skips), production build, zero dependency-audit findings,
+  schema/seed checks, bundle validation, and Helm checks. The `gpu_ops` static gate and
+  `git diff --check` also passed on 2026-08-12.
+- Flux reconciled `main@sha1:41a6bf0`; Helm revision 11 is ready on chart `0.3.5`, all eight
+  pods are ready with zero restarts, and schema remains `0012_agent_provider_registry`.
+  Runtime reports `runExecutionMode=worker`; only the API receives that mode. Provider Vault
+  role holders remain exactly credential-ingest and worker, while the API has no provider role
+  or token volume. No provider-key or development-store environment exists.
+- A rolled-back live API boundary probe was refused before mutation: the run stayed pending,
+  unclaimed, and without a failure code, then was removed by transaction rollback. A separate
+  worker-process probe resolved the existing provider reference without printing it. The
+  retained audit log records a successful `meta-harness-worker` Kubernetes login followed by
+  an exact read of `meta-harness-dev/data/providers/claude`.
 - Added the operator-approved `https://api2.limtok.net` origin to the exact endpoint allowlist
   on 2026-08-12. The provider key, Vault references, identities, policies, and roles remain
   unchanged; choosing the endpoint and matching protocol remains a Brain administrator action.

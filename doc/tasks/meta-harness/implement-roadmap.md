@@ -95,7 +95,7 @@
 
 - [x] Publish and independently verify Meta Harness chart and linux/amd64 image `0.3.5`.
 - [x] Bump only the HelmRelease chart and image pins; retain the default worker execution mode.
-- [ ] Reconcile `0.3.5` and verify API refusal, identity separation, runtime mode, and absence
+- [x] Reconcile `0.3.5` and verify API refusal, identity separation, runtime mode, and absence
   of provider credentials or development-store configuration.
 - [ ] Send a new provider message and prove the real worker claim plus its Kubernetes login and
   exact provider-path read in the retained Vault audit log.
