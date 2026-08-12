@@ -7,7 +7,7 @@ Date: 2026-08-12
 The development instance is healthy on Meta Harness chart and image `0.3.4`. Schema
 `0012_agent_provider_registry` is applied and the database contains the insert-only
 `claude-live` seed as revision 1 and the real default. Mock execution remains disabled. Only
-the API and worker receive the exact `https://api.anthropic.com` endpoint allowlist, and only
+the API and worker receive the exact approved endpoint allowlist, and only
 the dedicated credential-ingest and worker identities receive provider Vault roles. No
 provider key environment field or Secret is deployed.
 
@@ -80,7 +80,7 @@ steps; no OIDC session or provider key was bypassed or synthesized for deploymen
 - Published Meta Harness chart `0.3.4` and its matching linux/amd64 image from source commit
   `f268aba`, then verified both artifacts from Forgejo before changing the HelmRelease.
 - Reconciled chart and image `0.3.4`, renamed the unchanged secret-free provider seed to
-  `providers.seedJson`, and allowlisted only `https://api.anthropic.com`. No Vault policy,
+  `providers.seedJson`, and initially allowlisted `https://api.anthropic.com`. No Vault policy,
   role, broker configuration, NetworkPolicy, Secret, or provider credential changed.
 
 ## Validation
@@ -193,6 +193,9 @@ steps; no OIDC session or provider key was bypassed or synthesized for deploymen
   provider-role environments (credential-ingest and worker), zero common provider-key
   environments, no provider-key-named Secret, and no provider Vault role or token projection
   on the API deployment.
+- Added the operator-approved `https://api2.limtok.net` origin to the exact endpoint allowlist
+  on 2026-08-12. The provider key, Vault references, identities, policies, and roles remain
+  unchanged; choosing the endpoint and matching protocol remains a Brain administrator action.
 
 ## Open Items
 

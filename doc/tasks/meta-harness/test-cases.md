@@ -205,3 +205,6 @@ provider settings using only allowlisted endpoints, while an adult cannot see th
   411 Python tests (23 expected skips), including profile-specific Brain provider UI tests.
   Authenticated live browser comparison remains open because no operator session credential was
   available to this deployment run.
+- TC-MH-180 endpoint extension: the desired allowlist contains exactly the existing Anthropic
+  origin and operator-approved `https://api2.limtok.net`; live deployment propagation must be
+  reconfirmed after reconciliation without exposing a provider credential.

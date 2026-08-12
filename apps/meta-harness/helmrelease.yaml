@@ -69,6 +69,7 @@ spec:
       # Exact destinations to which a Brain administrator may direct provider credentials.
       endpointAllowlist:
         - https://api.anthropic.com
+        - https://api2.limtok.net
       defaultEngine: claude-live
       mockEngineEnabled: false
       vault:

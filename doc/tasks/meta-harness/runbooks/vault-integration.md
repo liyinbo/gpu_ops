@@ -192,7 +192,7 @@ administrator-only Brain tool. Rename `providers.configJson` to `providers.seedJ
 secret-free document is now explicitly insert-only and must never overwrite an administrator's
 later edit. Set `providers.endpointAllowlist` to the exact normalized HTTPS origins to which a
 provider credential may be sent. For this deployment, allow only
-`https://api.anthropic.com`.
+`https://api.anthropic.com` and the operator-approved `https://api2.limtok.net`.
 
 Do not change either provider Vault policy, either Kubernetes auth role, the workspace-broker
 identity, the provider reference allowlist, audience, CA Secret, or NetworkPolicies. Do not add

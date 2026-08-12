@@ -85,7 +85,8 @@
 
 - [x] Publish and independently verify Meta Harness chart and linux/amd64 image `0.3.4`.
 - [x] Rename the secret-free provider value from `configJson` to the insert-only `seedJson`.
-- [x] Allowlist only the normalized `https://api.anthropic.com` provider endpoint.
+- [x] Allowlist the normalized Anthropic endpoint and operator-approved
+  `https://api2.limtok.net` endpoint.
 - [x] Reconcile chart `0.3.4` and verify schema `0012_agent_provider_registry`, the seeded
   provider registry, runtime defaults, process allowlists, and absence of provider key fields.
 - [ ] Verify an administrator sees Brain provider controls and an adult profile does not.
